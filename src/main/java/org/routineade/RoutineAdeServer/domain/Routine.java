@@ -4,6 +4,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -12,11 +14,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Routine extends BaseEntity {
 
@@ -28,11 +32,15 @@ public class Routine extends BaseEntity {
     @Column(columnDefinition = "varchar(15)", nullable = false)
     private String routineTitle;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Category routineCategory;
 
     @Column(nullable = false)
     private Boolean isAlarmEnabled;
+
+    @Column(nullable = false)
+    private String startDate;
 
     @Column(columnDefinition = "boolean default false", nullable = false)
     private Boolean repeatMon;
@@ -60,12 +68,13 @@ public class Routine extends BaseEntity {
     private User user;
 
     @Builder
-    public Routine(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, Boolean repeatMon,
-                   Boolean repeatTue, Boolean repeatWed, Boolean repeatThu, Boolean repeatFri, Boolean repeatSat,
-                   Boolean repeatSun, User user) {
+    public Routine(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, String startDate,
+                   Boolean repeatMon, Boolean repeatTue, Boolean repeatWed, Boolean repeatThu, Boolean repeatFri,
+                   Boolean repeatSat, Boolean repeatSun, User user) {
         this.routineTitle = routineTitle;
         this.routineCategory = routineCategory;
         this.isAlarmEnabled = isAlarmEnabled;
+        this.startDate = startDate;
         this.repeatMon = repeatMon;
         this.repeatTue = repeatTue;
         this.repeatWed = repeatWed;

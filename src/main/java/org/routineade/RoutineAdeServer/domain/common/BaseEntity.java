@@ -23,6 +23,6 @@ public abstract class BaseEntity {
     @PrePersist
     public void onPrePersist() {
         this.createdDate = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd a hh:mm").withLocale(Locale.forLanguageTag("ko")));
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.forLanguageTag("ko")));
     }
 }
