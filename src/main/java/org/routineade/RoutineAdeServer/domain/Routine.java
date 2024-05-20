@@ -69,19 +69,32 @@ public class Routine extends BaseEntity {
 
     @Builder
     public Routine(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, String startDate,
-                   Boolean repeatMon, Boolean repeatTue, Boolean repeatWed, Boolean repeatThu, Boolean repeatFri,
-                   Boolean repeatSat, Boolean repeatSun, User user) {
+                   boolean[] isAlarmDays, User user) {
         this.routineTitle = routineTitle;
         this.routineCategory = routineCategory;
         this.isAlarmEnabled = isAlarmEnabled;
         this.startDate = startDate;
-        this.repeatMon = repeatMon;
-        this.repeatTue = repeatTue;
-        this.repeatWed = repeatWed;
-        this.repeatThu = repeatThu;
-        this.repeatFri = repeatFri;
-        this.repeatSat = repeatSat;
-        this.repeatSun = repeatSun;
+        this.repeatMon = isAlarmDays[0];
+        this.repeatTue = isAlarmDays[1];
+        this.repeatWed = isAlarmDays[2];
+        this.repeatThu = isAlarmDays[3];
+        this.repeatFri = isAlarmDays[4];
+        this.repeatSat = isAlarmDays[5];
+        this.repeatSun = isAlarmDays[6];
         this.user = user;
+    }
+
+    public void updateValue(String routineTitle, Category routineCategory, Boolean isAlarmEnabled,
+                            boolean[] isAlarmDays) {
+        this.routineTitle = routineTitle;
+        this.routineCategory = routineCategory;
+        this.isAlarmEnabled = isAlarmEnabled;
+        this.repeatMon = isAlarmDays[0];
+        this.repeatTue = isAlarmDays[1];
+        this.repeatWed = isAlarmDays[2];
+        this.repeatThu = isAlarmDays[3];
+        this.repeatFri = isAlarmDays[4];
+        this.repeatSat = isAlarmDays[5];
+        this.repeatSun = isAlarmDays[6];
     }
 }
