@@ -25,7 +25,11 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     private final String[] permitAllPaths = {
-            "/users/login"
+            "/users/login",
+            "/swagger-ui/index.html",
+            "/",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Bean

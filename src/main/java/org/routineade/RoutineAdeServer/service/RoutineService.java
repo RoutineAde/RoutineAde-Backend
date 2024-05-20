@@ -12,7 +12,6 @@ import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineDetail;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
-import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.repository.RoutineRepository;
 import org.springframework.stereotype.Service;
@@ -80,15 +79,15 @@ public class RoutineService {
     }
 
     @Transactional(readOnly = true)
-    public RoutinesGetResponse getRoutines(User user, RoutinesGetRequest request) {
-        LocalDate routineDate = LocalDate.parse(request.routineDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        List<Routine> dayRoutines = choiceRoutineSearchMethod(user, routineDate.getDayOfWeek());
+    public RoutinesGetResponse getRoutines(User user, String routineDate) {
+        LocalDate date = LocalDate.parse(routineDate, DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        List<Routine> dayRoutines = choiceRoutineSearchMethod(user, date.getDayOfWeek());
 
         List<RoutineDetail> routines = new ArrayList<>();
         for (Routine routine : dayRoutines) {
             LocalDate routineStartDate = LocalDate.parse(routine.getStartDate(),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            if (routineStartDate.isBefore(routineDate) || routineStartDate.isEqual(routineDate)) {
+            if (routineStartDate.isBefore(date) || routineStartDate.isEqual(date)) {
                 routines.add(RoutineDetail.of(routine));
             }
         }

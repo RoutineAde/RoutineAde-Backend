@@ -9,7 +9,7 @@ import org.routineade.RoutineAdeServer.domain.common.Category;
 public record RoutineCreateRequest(
         @NotBlank(message = "루틴명은 비어 있거나, 공백일 수 없습니다.")
         @NotNull(message = "루틴명은 null일 수 없습니다.")
-        @Size(min = 1, max = 15, message = "피드 내용은 15자를 초과할 수 없습니다.")
+        @Size(min = 1, max = 15, message = "루틴명은 15자를 초과할 수 없습니다.")
         String routineTitle,
         @NotNull(message = "카테고리는 1개 이상 선택해야 합니다.")
         Category routineCategory,
