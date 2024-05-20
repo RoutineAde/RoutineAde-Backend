@@ -14,13 +14,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GroupRoutine extends BaseEntity {
+public class GroupRoutine {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)

@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import jakarta.validation.Valid;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
@@ -33,8 +34,9 @@ public class RoutineController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<RoutinesGetResponse> getRoutines(@Valid @RequestBody RoutinesGetRequest request) {
-        User user = userService.getUserOrException(2L);
+    public ResponseEntity<RoutinesGetResponse> getRoutines(Principal principal,
+                                                           @Valid @RequestBody RoutinesGetRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         RoutinesGetResponse response = routineService.getRoutines(user, request);
 
         return ResponseEntity
@@ -43,8 +45,9 @@ public class RoutineController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createRoutine(@Valid @RequestBody RoutineCreateRequest request) {
-        User user = userService.getUserOrException(2L);
+    public ResponseEntity<Void> createRoutine(Principal principal,
+                                              @Valid @RequestBody RoutineCreateRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         routineService.createRoutine(user, request);
 
         return ResponseEntity
@@ -53,9 +56,10 @@ public class RoutineController {
     }
 
     @PutMapping("/{routineId}")
-    public ResponseEntity<Void> updateRoutine(@PathVariable Long routineId,
+    public ResponseEntity<Void> updateRoutine(Principal principal,
+                                              @PathVariable Long routineId,
                                               @Valid @RequestBody RoutineUpdateRequest request) {
-        User user = userService.getUserOrException(1L);
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         routineService.updateRoutine(user, routineId, request);
 
         return ResponseEntity
@@ -64,8 +68,9 @@ public class RoutineController {
     }
 
     @DeleteMapping("/{routineId}")
-    public ResponseEntity<Void> deleteRoutine(@PathVariable Long routineId) {
-        User user = userService.getUserOrException(1L);
+    public ResponseEntity<Void> deleteRoutine(Principal principal,
+                                              @PathVariable Long routineId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         routineService.deleteRoutine(user, routineId);
 
         return ResponseEntity
@@ -74,9 +79,10 @@ public class RoutineController {
     }
 
     @PutMapping("/{routineId}/check")
-    public ResponseEntity<Void> checkRoutine(@PathVariable Long routineId,
+    public ResponseEntity<Void> checkRoutine(Principal principal,
+                                             @PathVariable Long routineId,
                                              @Valid @RequestBody CheckRoutineRequest request) {
-        User user = userService.getUserOrException(2L);
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         routineService.checkRoutine(user, routineId, request);
 
         return ResponseEntity
