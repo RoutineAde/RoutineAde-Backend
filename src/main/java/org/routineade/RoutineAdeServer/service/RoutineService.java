@@ -52,6 +52,16 @@ public class RoutineService {
         routine.updateValue(request.routineTitle(), request.routineCategory(), request.isAlarmEnabled(), isAlarmDays);
     }
 
+    @Transactional
+    public void deleteRoutine(User user, Long routineId) {
+        Routine routine = getRoutineOrException(routineId);
+        if (!routine.getUser().equals(user)) {
+            throw new RuntimeException("자신의 루틴만 삭제할 수 있습니다!");
+        }
+
+        routineRepository.delete(routine);
+    }
+
     public Routine getRoutineOrException(Long routineId) {
         return routineRepository.findById(routineId).orElseThrow(() ->
                 new RuntimeException("해당 ID를 가진 루틴이 없습니다."));

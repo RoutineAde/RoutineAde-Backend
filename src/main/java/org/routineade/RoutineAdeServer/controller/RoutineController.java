@@ -1,7 +1,7 @@
 package org.routineade.RoutineAdeServer.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
@@ -10,6 +10,7 @@ import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.service.RoutineService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,7 +43,17 @@ public class RoutineController {
         routineService.updateRoutine(user, routineId, request);
 
         return ResponseEntity
-                .status(OK)
+                .status(NO_CONTENT)
+                .build();
+    }
+
+    @DeleteMapping("/{routineId}")
+    public ResponseEntity<Void> deleteRoutine(@PathVariable Long routineId) {
+        User user = userService.getUserOrException(1L);
+        routineService.deleteRoutine(user, routineId);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
                 .build();
     }
 }
