@@ -4,6 +4,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -28,15 +30,10 @@ public class UserHistory extends BaseEntity {
     private String finishedRoutine;
 
     @Column(columnDefinition = "varchar(100) default ''", nullable = false)
-    private String unfinishedRoutine;
-
-    @Column(columnDefinition = "varchar(100) default ''", nullable = false)
     private String finishedGroupRoutine;
 
-    @Column(columnDefinition = "varchar(100) default ''", nullable = false)
-    private String unfinishedGroupRoutine;
-
-    @Column(columnDefinition = "varchar(100) default ''", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column
     private Mood dailyMood;
 
     @ManyToOne
@@ -44,13 +41,11 @@ public class UserHistory extends BaseEntity {
     private User user;
 
     @Builder
-    public UserHistory(String finishedRoutine, String unfinishedRoutine, String finishedGroupRoutine,
-                       String unfinishedGroupRoutine, Mood dailyMood, User user) {
+    public UserHistory(String finishedRoutine, String finishedGroupRoutine, Mood dailyMood, User user) {
         this.finishedRoutine = finishedRoutine;
-        this.unfinishedRoutine = unfinishedRoutine;
         this.finishedGroupRoutine = finishedGroupRoutine;
-        this.unfinishedGroupRoutine = unfinishedGroupRoutine;
         this.dailyMood = dailyMood;
         this.user = user;
     }
+    
 }
