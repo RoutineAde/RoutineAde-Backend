@@ -1,10 +1,12 @@
 package org.routineade.RoutineAdeServer.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.repository.RoutineRepository;
@@ -65,15 +67,18 @@ public class RoutineService {
     }
 
     @Transactional
-    public void checkRoutine(User user, Long routineId) {
+    public void checkRoutine(User user, Long routineId, CheckRoutineRequest request) {
         Routine routine = getRoutineOrException(routineId);
         if (!routine.getUser().equals(user)) {
             throw new RuntimeException("자신의 루틴만 체크할 수 있습니다!");
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate routineDate = LocalDate.parse(request.checkRoutineDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        if (routineDate.isAfter(LocalDate.now())) {
+            throw new RuntimeException("미래의 루틴을 완료할 수 없습니다!");
+        }
 
-        userHistoryService.checkRoutine(user, today, routineId);
+        userHistoryService.checkRoutine(user, routineDate, routineId);
     }
 
     public Routine getRoutineOrException(Long routineId) {

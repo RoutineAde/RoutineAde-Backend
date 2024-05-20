@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserHistoryRepository extends JpaRepository<UserHistory, Long> {
 
-    @Query("SELECT uh FROM UserHistory uh WHERE uh.user = :user AND uh.createdDate LIKE CONCAT(:createdDate, '%')")
-    Optional<UserHistory> findByUserAndCreatedDate(User user, String createdDate);
+    @Query("SELECT uh FROM UserHistory uh WHERE uh.user = :user AND uh.historyDate LIKE CONCAT(:historyDate, '%')")
+    Optional<UserHistory> findByUserAndHistoryDate(User user, String historyDate);
 }

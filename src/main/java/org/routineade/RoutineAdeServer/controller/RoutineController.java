@@ -3,8 +3,10 @@ package org.routineade.RoutineAdeServer.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.service.RoutineService;
@@ -27,8 +29,8 @@ public class RoutineController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<Void> createRoutine(@RequestBody RoutineCreateRequest request) {
-        User user = userService.getUserOrException(1L);
+    public ResponseEntity<Void> createRoutine(@Valid @RequestBody RoutineCreateRequest request) {
+        User user = userService.getUserOrException(2L);
         routineService.createRoutine(user, request);
 
         return ResponseEntity
@@ -38,7 +40,7 @@ public class RoutineController {
 
     @PutMapping("/{routineId}")
     public ResponseEntity<Void> updateRoutine(@PathVariable Long routineId,
-                                              @RequestBody RoutineUpdateRequest request) {
+                                              @Valid @RequestBody RoutineUpdateRequest request) {
         User user = userService.getUserOrException(1L);
         routineService.updateRoutine(user, routineId, request);
 
@@ -58,9 +60,10 @@ public class RoutineController {
     }
 
     @PutMapping("/{routineId}/check")
-    public ResponseEntity<Void> checkRoutine(@PathVariable Long routineId) {
-        User user = userService.getUserOrException(1L);
-        routineService.checkRoutine(user, routineId);
+    public ResponseEntity<Void> checkRoutine(@PathVariable Long routineId,
+                                             @Valid @RequestBody CheckRoutineRequest request) {
+        User user = userService.getUserOrException(2L);
+        routineService.checkRoutine(user, routineId, request);
 
         return ResponseEntity
                 .status(NO_CONTENT)

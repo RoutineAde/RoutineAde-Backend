@@ -16,19 +16,22 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
-import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 
 @Entity
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserHistory extends BaseEntity {
+public class UserHistory {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(nullable = false)
     private Long userHistoryId;
+
+    @Column(nullable = false)
+    private String historyDate;
 
     @Column(columnDefinition = "varchar(100) default ''", nullable = false)
     private String finishedRoutine;
@@ -36,6 +39,7 @@ public class UserHistory extends BaseEntity {
     @Column(columnDefinition = "varchar(100) default ''", nullable = false)
     private String finishedGroupRoutine;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column
     private Mood dailyMood;
@@ -45,7 +49,9 @@ public class UserHistory extends BaseEntity {
     private User user;
 
     @Builder
-    public UserHistory(String finishedRoutine, String finishedGroupRoutine, Mood dailyMood, User user) {
+    public UserHistory(String historyDate, String finishedRoutine, String finishedGroupRoutine, Mood dailyMood,
+                       User user) {
+        this.historyDate = historyDate;
         this.finishedRoutine = finishedRoutine;
         this.finishedGroupRoutine = finishedGroupRoutine;
         this.dailyMood = dailyMood;
@@ -59,7 +65,7 @@ public class UserHistory extends BaseEntity {
             finishedRoutines.remove(routineId);
             this.finishedRoutine = String.join(",", finishedRoutines);
         } else {
-            this.finishedRoutine += "," + routineId;
+            this.finishedRoutine += this.finishedRoutine.isBlank() ? routineId : "," + routineId;
         }
     }
 
