@@ -56,4 +56,14 @@ public class RoutineController {
                 .status(NO_CONTENT)
                 .build();
     }
+
+    @PutMapping("/{routineId}/check")
+    public ResponseEntity<Void> checkRoutine(@PathVariable Long routineId) {
+        User user = userService.getUserOrException(1L);
+        routineService.checkRoutine(user, routineId);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
+    }
 }

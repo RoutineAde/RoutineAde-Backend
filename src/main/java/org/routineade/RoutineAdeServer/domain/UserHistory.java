@@ -10,14 +10,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserHistory extends BaseEntity {
 
@@ -47,5 +51,16 @@ public class UserHistory extends BaseEntity {
         this.dailyMood = dailyMood;
         this.user = user;
     }
-    
+
+    public void updateFinishedRoutine(String routineId) {
+        if (finishedRoutine.contains(routineId)) {
+            List<String> finishedRoutines = new java.util.ArrayList<>(
+                    Arrays.stream(finishedRoutine.split(",")).toList());
+            finishedRoutines.remove(routineId);
+            this.finishedRoutine = String.join(",", finishedRoutines);
+        } else {
+            this.finishedRoutine += "," + routineId;
+        }
+    }
+
 }

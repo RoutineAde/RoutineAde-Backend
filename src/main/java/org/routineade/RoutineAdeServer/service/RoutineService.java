@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Routine;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RoutineService {
 
     private final RoutineRepository routineRepository;
+    private final UserHistoryService userHistoryService;
 //    private final AlarmService alarmService;
 
     @Transactional
@@ -60,6 +62,18 @@ public class RoutineService {
         }
 
         routineRepository.delete(routine);
+    }
+
+    @Transactional
+    public void checkRoutine(User user, Long routineId) {
+        Routine routine = getRoutineOrException(routineId);
+        if (!routine.getUser().equals(user)) {
+            throw new RuntimeException("자신의 루틴만 체크할 수 있습니다!");
+        }
+
+        LocalDate today = LocalDate.now();
+
+        userHistoryService.checkRoutine(user, today, routineId);
     }
 
     public Routine getRoutineOrException(Long routineId) {
