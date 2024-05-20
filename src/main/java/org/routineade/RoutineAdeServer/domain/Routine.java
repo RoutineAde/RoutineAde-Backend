@@ -15,14 +15,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
-import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 
 @Entity
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Routine extends BaseEntity {
+public class Routine {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -69,32 +68,32 @@ public class Routine extends BaseEntity {
 
     @Builder
     public Routine(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, String startDate,
-                   boolean[] isAlarmDays, User user) {
+                   boolean[] isRepeatDays, User user) {
         this.routineTitle = routineTitle;
         this.routineCategory = routineCategory;
         this.isAlarmEnabled = isAlarmEnabled;
         this.startDate = startDate;
-        this.repeatMon = isAlarmDays[0];
-        this.repeatTue = isAlarmDays[1];
-        this.repeatWed = isAlarmDays[2];
-        this.repeatThu = isAlarmDays[3];
-        this.repeatFri = isAlarmDays[4];
-        this.repeatSat = isAlarmDays[5];
-        this.repeatSun = isAlarmDays[6];
+        this.repeatMon = isRepeatDays[0];
+        this.repeatTue = isRepeatDays[1];
+        this.repeatWed = isRepeatDays[2];
+        this.repeatThu = isRepeatDays[3];
+        this.repeatFri = isRepeatDays[4];
+        this.repeatSat = isRepeatDays[5];
+        this.repeatSun = isRepeatDays[6];
         this.user = user;
     }
 
     public void updateValue(String routineTitle, Category routineCategory, Boolean isAlarmEnabled,
-                            boolean[] isAlarmDays) {
+                            boolean[] isRepeatDays) {
         this.routineTitle = routineTitle;
         this.routineCategory = routineCategory;
         this.isAlarmEnabled = isAlarmEnabled;
-        this.repeatMon = isAlarmDays[0];
-        this.repeatTue = isAlarmDays[1];
-        this.repeatWed = isAlarmDays[2];
-        this.repeatThu = isAlarmDays[3];
-        this.repeatFri = isAlarmDays[4];
-        this.repeatSat = isAlarmDays[5];
-        this.repeatSun = isAlarmDays[6];
+        this.repeatMon = isRepeatDays[0];
+        this.repeatTue = isRepeatDays[1];
+        this.repeatWed = isRepeatDays[2];
+        this.repeatThu = isRepeatDays[3];
+        this.repeatFri = isRepeatDays[4];
+        this.repeatSat = isRepeatDays[5];
+        this.repeatSun = isRepeatDays[6];
     }
 }
