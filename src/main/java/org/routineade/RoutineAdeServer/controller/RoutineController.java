@@ -40,7 +40,7 @@ public class RoutineController {
 
     @Operation(summary = "루틴 조회", description = "사용자의 루틴을 조회하는 API")
     @Parameters({
-            @Parameter(name = "routineDate", description = "조회할 날짜", example = "2024.06.25")
+            @Parameter(name = "routineDate", description = "조회할 날짜 (이 날에 수행해야 하는 루틴만 조회됨)", example = "2024.06.25")
     })
     @GetMapping
     public ResponseEntity<RoutinesGetResponse> getRoutines(Principal principal,
@@ -59,7 +59,7 @@ public class RoutineController {
             @Parameter(name = "routineCategory", description = "루틴 카테고리 (DAILY, HEALTH, CARE, SELF_IMPROVEMENT, OTHER 중 하나)", example = "HEALTH"),
             @Parameter(name = "isAlarmEnabled", description = "루틴 알람 여부", example = "true"),
             @Parameter(name = "startDate", description = "루틴 시작 날짜", example = "2024.06.25"),
-            @Parameter(name = "repeatDays", description = "루틴 반복 요일 (Mon, Tue, Wed, Thu, Fri, Sat, Sun 중 한 개 이상)", example = "[Mon, Wed, Sun]")
+            @Parameter(name = "repeatDays", description = "루틴 반복 요일 (Mon, Tue, Wed, Thu, Fri, Sat, Sun 중 한 개 이상)", example = "[\"Mon\", \"Wed\", \"Sun\"]")
     })
     @PostMapping
     public ResponseEntity<Void> createRoutine(Principal principal,
