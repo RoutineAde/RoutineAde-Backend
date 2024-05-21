@@ -41,7 +41,7 @@ public class UserController {
                 .body(Map.of("Authentication", token));
     }
 
-    @Operation(summary = "감정 등록 API", description = "사용자가 특정 날짜에 감정을 등록하는 API")
+    @Operation(summary = "감정 등록", description = "사용자가 특정 날짜에 감정을 등록하는 API")
     @Parameters({
             @Parameter(name = "date", description = "감정을 등록할 날짜", example = "2024.06.25"),
             @Parameter(name = "dailyMood", description = "등록할 감정 (GOOD, OK, SAD, ANGRY 중 하나)", example = "GOOD")

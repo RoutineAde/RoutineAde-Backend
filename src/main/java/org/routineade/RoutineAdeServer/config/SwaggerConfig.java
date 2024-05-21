@@ -29,8 +29,8 @@ public class SwaggerConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("API Test") // API의 제목
-                .description("Let's practice Swagger UI") // API에 대한 설명
+                .title("루틴 에이드 API 명세서") // API의 제목
+                .description("오른쪽에 Authorize를 이용하면 사용자 인증이 된 상태로 API를 이용할 수 있습니다!") // API에 대한 설명
                 .version("1.0.0"); // API의 버전
     }
 }
