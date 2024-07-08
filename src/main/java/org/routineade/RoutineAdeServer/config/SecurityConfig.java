@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -29,7 +28,8 @@ public class SecurityConfig {
             "/swagger-ui/index.html",
             "/",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "users/health"
     };
 
     @Bean
