@@ -12,10 +12,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GroupMember extends BaseEntity {
 
@@ -23,10 +25,6 @@ public class GroupMember extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     @Column(nullable = false)
     private Long groupMemberId;
-
-    @Column(columnDefinition = "varchar(120)", nullable = false)
-    private String content;
-
     @Column(columnDefinition = "boolean default true", nullable = false)
     private Boolean isGroupAlarmEnabled;
 
@@ -40,7 +38,6 @@ public class GroupMember extends BaseEntity {
 
     @Builder
     public GroupMember(String content, Boolean isGroupAlarmEnabled, Group group, User user) {
-        this.content = content;
         this.isGroupAlarmEnabled = isGroupAlarmEnabled;
         this.group = group;
         this.user = user;

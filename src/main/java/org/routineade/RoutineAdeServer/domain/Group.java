@@ -36,8 +36,8 @@ public class Group {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @Column
-    private Integer groupPassword;
+    @Column(columnDefinition = "varchar(4)")
+    private String groupPassword;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -62,7 +62,7 @@ public class Group {
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     @Builder
-    public Group(String groupTitle, Boolean isPublic, Integer groupPassword, Category groupCategory, Integer maxMember,
+    public Group(String groupTitle, Boolean isPublic, String groupPassword, Category groupCategory, Integer maxMember,
                  String description, Long createdUserId) {
         this.groupTitle = groupTitle;
         this.isPublic = isPublic;
