@@ -14,6 +14,7 @@ import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,21 @@ public class GroupController {
                                             @RequestBody @Valid GroupCreateRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         groupService.createGroup(user, request);
+
+        return ResponseEntity
+                .status(CREATED)
+                .build();
+    }
+
+    @Operation(summary = "그룹 삭제", description = "그룹을 삭제하는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "삭제할 그룹 ID", example = "1")
+    })
+    @PostMapping("/{groupId}")
+    public ResponseEntity<Void> deleteGroup(Principal principal,
+                                            @PathVariable(value = "groupId") Long groupId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.deleteGroup(user, groupId);
 
         return ResponseEntity
                 .status(CREATED)

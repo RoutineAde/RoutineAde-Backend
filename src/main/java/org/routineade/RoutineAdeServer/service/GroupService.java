@@ -6,6 +6,7 @@ import static org.routineade.RoutineAdeServer.domain.common.Category.HEALTH;
 import static org.routineade.RoutineAdeServer.domain.common.Category.OTHER;
 import static org.routineade.RoutineAdeServer.domain.common.Category.SELF_IMPROVEMENT;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.User;
@@ -36,6 +37,17 @@ public class GroupService {
 
         groupRepository.save(group);
         groupMemberService.createGroupMember(group, user);
+    }
+
+    public void deleteGroup(User user, Long groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
+            throw new RuntimeException("해당 그룹을 삭제할 권한이 없습니다!");
+        }
+
+        groupRepository.delete(group);
     }
 
     private Category extractCategory(String groupCategory) {
