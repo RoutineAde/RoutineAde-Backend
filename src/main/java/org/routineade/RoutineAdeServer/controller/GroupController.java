@@ -1,6 +1,7 @@
 package org.routineade.RoutineAdeServer.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,7 +60,7 @@ public class GroupController {
         groupService.deleteGroup(user, groupId);
 
         return ResponseEntity
-                .status(CREATED)
+                .status(NO_CONTENT)
                 .build();
     }
 
