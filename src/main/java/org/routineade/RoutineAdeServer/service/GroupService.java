@@ -52,11 +52,11 @@ public class GroupService {
 
     private Category extractCategory(String groupCategory) {
         return switch (groupCategory) {
-            case "daily" -> DAILY;
-            case "health" -> HEALTH;
-            case "care" -> CARE;
-            case "self_improvement" -> SELF_IMPROVEMENT;
-            case "other" -> OTHER;
+            case "DAILY" -> DAILY;
+            case "HEALTH" -> HEALTH;
+            case "CARE" -> CARE;
+            case "SELF_IMPROVEMENT" -> SELF_IMPROVEMENT;
+            case "OTHER" -> OTHER;
             default -> throw new RuntimeException("카테고리가 잘못되었습니다!");
         };
     }
