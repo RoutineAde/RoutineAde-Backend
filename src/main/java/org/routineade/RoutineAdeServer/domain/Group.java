@@ -72,4 +72,15 @@ public class Group {
         this.description = description;
         this.createdUserId = createdUserId;
     }
+
+    public void updateGroup(String groupTitle, String groupPassword, Category groupCategory, Integer maxMember,
+                            String description) {
+        this.groupTitle = groupTitle;
+        this.isPublic = groupPassword == null;
+        this.groupPassword = groupPassword;
+        this.groupCategory = groupCategory;
+        this.maxMember = maxMember;
+        this.description = description;
+    }
+    
 }

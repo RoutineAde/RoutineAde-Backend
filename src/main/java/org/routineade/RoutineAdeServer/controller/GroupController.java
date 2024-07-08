@@ -12,11 +12,13 @@ import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
+import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +48,26 @@ public class GroupController {
 
         return ResponseEntity
                 .status(CREATED)
+                .build();
+    }
+
+    @Operation(summary = "그룹 수정", description = "그룹을 수정하는 API")
+    @Parameters({
+            @Parameter(name = "groupTitle", description = "그룹명", example = "꿈을 향해"),
+            @Parameter(name = "groupPassword", description = "그룹 비밀번호 (없을 시 null)", example = "1234"),
+            @Parameter(name = "groupCategory", description = "그룹 카테고리 (daily, health, care, self_improvement, other)", example = "health"),
+            @Parameter(name = "maxMember", description = "그룹 모집 인원수", example = "25"),
+            @Parameter(name = "description", description = "그룹 소개", example = "그룹 소개입니당~")
+    })
+    @PutMapping("/{groupId}")
+    public ResponseEntity<Void> updateGroup(Principal principal,
+                                            @PathVariable(value = "groupId") Long groupId,
+                                            @RequestBody @Valid GroupUpdateRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.updateGroup(user, groupId, request);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
                 .build();
     }
 
