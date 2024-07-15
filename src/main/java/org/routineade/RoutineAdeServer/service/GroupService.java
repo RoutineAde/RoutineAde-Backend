@@ -81,6 +81,7 @@ public class GroupService {
         groupChattingService.createGroupChatting(group, user, request);
     }
 
+    @Transactional(readOnly = true)
     public GroupChattingGetResponse getGroupChatting(User user, Long groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() ->
                 new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
