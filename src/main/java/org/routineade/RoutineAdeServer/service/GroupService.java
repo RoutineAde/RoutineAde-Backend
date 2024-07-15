@@ -13,6 +13,7 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final GroupMemberService groupMemberService;
+    private final GroupChattingService groupChattingService;
 
     public void createGroup(User user, GroupCreateRequest request) {
         Group group = Group.builder()
@@ -65,6 +67,17 @@ public class GroupService {
 
         group.updateGroup(request.groupTitle(), request.groupPassword(), extractCategory(request.groupCategory()),
                 request.maxMember(), request.description());
+    }
+
+    public void createGroupChatting(User user, Long groupId, GroupChattingCreateRequest request) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        if (groupMemberService.isNotMember(group, user)) {
+            throw new RuntimeException("해당 그룹에 채팅을 생성할 권한이 없습니다!");
+        }
+
+        groupChattingService.createGroupChatting(group, user, request);
     }
 
     private Category extractCategory(String groupCategory) {

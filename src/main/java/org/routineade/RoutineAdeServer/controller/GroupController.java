@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +84,24 @@ public class GroupController {
 
         return ResponseEntity
                 .status(NO_CONTENT)
+                .build();
+    }
+
+    @Operation(summary = "그룹 채팅 생성", description = "그룹 채팅을 생성하는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "채팅을 생성할 그룹 ID", example = "1"),
+            @Parameter(name = "content", description = "채팅 내용", example = "오늘 루틴 모두 완료했습니다^^"),
+            @Parameter(name = "image", description = "채팅 첨부 이미지")
+    })
+    @PostMapping("/{groupId}")
+    public ResponseEntity<Void> createGroupChatting(Principal principal,
+                                                    @PathVariable(value = "groupId") Long groupId,
+                                                    @Valid @RequestBody GroupChattingCreateRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.createGroupChatting(user, groupId, request);
+
+        return ResponseEntity
+                .status(CREATED)
                 .build();
     }
 
