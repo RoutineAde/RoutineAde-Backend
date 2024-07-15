@@ -2,6 +2,7 @@ package org.routineade.RoutineAdeServer.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,9 +15,11 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -105,4 +108,18 @@ public class GroupController {
                 .build();
     }
 
+    @Operation(summary = "그룹 채팅 조회", description = "그룹 채팅을 조회하는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "채팅을 조회할 그룹 ID", example = "1")
+    })
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GroupChattingGetResponse> getGroupChatting(Principal principal,
+                                                                     @PathVariable(value = "groupId") Long groupId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(groupService.getGroupChatting(user, groupId));
+    }
+    
 }

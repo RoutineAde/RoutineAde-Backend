@@ -14,6 +14,7 @@ import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +79,17 @@ public class GroupService {
         }
 
         groupChattingService.createGroupChatting(group, user, request);
+    }
+
+    public GroupChattingGetResponse getGroupChatting(User user, Long groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        if (groupMemberService.isNotMember(group, user)) {
+            throw new RuntimeException("해당 그룹의 채팅을 조회할 권한이 없습니다!");
+        }
+
+        return groupChattingService.getGroupChatting(group, user);
     }
 
     private Category extractCategory(String groupCategory) {

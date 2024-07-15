@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.config.S3Service;
@@ -7,6 +8,8 @@ import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupChatting;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetInfo;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupChattingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,14 @@ public class GroupChattingService {
                 .build();
 
         groupChattingRepository.save(groupChatting);
+    }
+
+    @Transactional(readOnly = true)
+    public GroupChattingGetResponse getGroupChatting(Group group, User user) {
+        List<GroupChatting> groupChattingList = groupChattingRepository.findAllByGroup(group);
+
+        return GroupChattingGetResponse.of(
+                groupChattingList.stream().map(gc -> GroupChattingGetInfo.of(gc, user.getUserId())).toList());
     }
 
     private String uploadToS3AndGetURL(MultipartFile image) {
