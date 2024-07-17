@@ -14,4 +14,6 @@ public interface CompletionRoutineRepository extends JpaRepository<CompletionRou
 
     void deleteByUserAndRoutineAndCompletionDate(User user, Routine routine, LocalDate CompletionDate);
 
+    Boolean existsByUserAndRoutine(User user, Routine routine);
+
 }

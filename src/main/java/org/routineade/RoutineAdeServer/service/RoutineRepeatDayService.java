@@ -1,10 +1,14 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.RoutineRepeatDay;
+import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Day;
 import org.routineade.RoutineAdeServer.repository.RoutineRepeatDayRepository;
 import org.springframework.stereotype.Service;
@@ -19,14 +23,35 @@ public class RoutineRepeatDayService {
 
     public void createRoutineRepeatDay(Routine routine, List<String> repeatDays) {
         repeatDays.stream()
-                .map(this::getDayOfLabel)
+                .map(this::getDayOfName)
                 .forEach(day -> routineRepeatDayRepository.save(RoutineRepeatDay.of(day, routine)));
     }
 
     public void updateRoutineRepeatDay(Routine routine, List<String> repeatDays) {
         routineRepeatDayRepository.deleteAll(routine.getRoutineRepeatDays());
-        
+
         createRoutineRepeatDay(routine, repeatDays);
+    }
+
+    public List<Routine> getPersonalRoutinesByDay(User user, DayOfWeek dayOfWeek) {
+        return routineRepeatDayRepository.findByUserAndDay(user.getUserId(),
+                getDayOfLabel(dayOfWeek.getDisplayName(
+                        TextStyle.SHORT, Locale.KOREAN))).stream().map(RoutineRepeatDay::getRoutine).toList();
+    }
+
+    public List<Routine> getRoutinesByDay(List<Routine> routines, DayOfWeek dayOfWeek) {
+        routines.removeIf(
+                routine -> !routine.getRoutineRepeatDays().stream().map(RoutineRepeatDay::getRepeatDay).toList()
+                        .contains(getDayOfLabel(dayOfWeek.getDisplayName(
+                                TextStyle.SHORT, Locale.KOREAN))));
+        return routines;
+    }
+
+    private Day getDayOfName(String name) {
+        return Arrays.stream(Day.values())
+                .filter(d -> d.name().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("반복 요일 형식이 잘못되었습니다."));
     }
 
     private Day getDayOfLabel(String label) {

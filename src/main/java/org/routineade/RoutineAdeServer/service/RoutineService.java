@@ -1,18 +1,23 @@
 package org.routineade.RoutineAdeServer.service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.routineade.RoutineAdeServer.domain.Group;
+import org.routineade.RoutineAdeServer.domain.GroupMember;
+import org.routineade.RoutineAdeServer.domain.GroupRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineDetail;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
-import org.routineade.RoutineAdeServer.dto.routine.RoutineDetail;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.repository.RoutineRepository;
@@ -25,9 +30,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class RoutineService {
 
     private final RoutineRepository routineRepository;
-    private final UserHistoryService userHistoryService;
     private final RoutineRepeatDayService routineRepeatDayService;
     private final CompletionRoutineService completionRoutineService;
+
+    @Transactional(readOnly = true)
+    public RoutinesGetResponse getRoutines(User user, String routineDate) {
+        LocalDate date = LocalDate.parse(routineDate, DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user, date.getDayOfWeek());
+
+        List<PersonalRoutineGetResponse> personalRoutineGetResponses = new ArrayList<>();
+        for (Routine routine : personalRoutines) {
+            if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
+                personalRoutineGetResponses.add(PersonalRoutineGetResponse.of(routine));
+            }
+        }
+
+        List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
+        for (Group userGroup : user.getGroupMembers().stream().map(GroupMember::getGroup).collect(Collectors.toSet())) {
+            List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
+
+            List<GroupRoutineDetail> groupRoutines = routineRepeatDayService.getRoutinesByDay(routines,
+                            date.getDayOfWeek()).stream()
+                    .map(r -> GroupRoutineDetail.of(r, completionRoutineService.getIsCompletionRoutine(user, r)))
+                    .toList();
+
+            groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutines));
+        }
+
+        return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses);
+    }
 
     public void createRoutine(User user, RoutineCreateRequest request) {
         Routine routine = Routine.builder()
@@ -86,70 +117,9 @@ public class RoutineService {
         completionRoutineService.setCompletionRoutineStatus(user, routine, routineDate);
     }
 
-    @Transactional(readOnly = true)
-    public RoutinesGetResponse getRoutines(User user, String routineDate) {
-        LocalDate date = LocalDate.parse(routineDate, DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        List<Routine> dayRoutines = choiceRoutineSearchMethod(user, date.getDayOfWeek());
-
-        List<RoutineDetail> routines = new ArrayList<>();
-        for (Routine routine : dayRoutines) {
-            LocalDate routineStartDate = LocalDate.parse(routine.getStartDate(),
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            if (routineStartDate.isBefore(date) || routineStartDate.isEqual(date)) {
-                routines.add(RoutineDetail.of(routine));
-            }
-        }
-
-        return RoutinesGetResponse.of(routines);
-    }
-
     public Routine getRoutineOrException(Long routineId) {
         return routineRepository.findById(routineId).orElseThrow(() ->
                 new RuntimeException("해당 ID를 가진 루틴이 없습니다."));
-    }
-
-    private boolean[] setRepeatDays(List<String> repeatDays) {
-        boolean[] isRepeat = new boolean[7];
-        for (String repeatDay : repeatDays) {
-            switch (repeatDay) {
-                case "Mon" -> isRepeat[0] = true;
-                case "Tue" -> isRepeat[1] = true;
-                case "Wed" -> isRepeat[2] = true;
-                case "Thu" -> isRepeat[3] = true;
-                case "Fri" -> isRepeat[4] = true;
-                case "Sat" -> isRepeat[5] = true;
-                case "Sun" -> isRepeat[6] = true;
-                default -> throw new RuntimeException("반복 요일은 1개 이상 선택해야 합니다.");
-            }
-        }
-        return isRepeat;
-    }
-
-    private List<Routine> choiceRoutineSearchMethod(User user, DayOfWeek day) {
-        switch (day) {
-            case MONDAY -> {
-                return routineRepository.findByUserAndMonDay(user);
-            }
-            case TUESDAY -> {
-                return routineRepository.findByUserAndTueDay(user);
-            }
-            case WEDNESDAY -> {
-                return routineRepository.findByUserAndWedDay(user);
-            }
-            case THURSDAY -> {
-                return routineRepository.findByUserAndThuDay(user);
-            }
-            case FRIDAY -> {
-                return routineRepository.findByUserAndFriDay(user);
-            }
-            case SATURDAY -> {
-                return routineRepository.findByUserAndSatDay(user);
-            }
-            case SUNDAY -> {
-                return routineRepository.findByUserAndSunDay(user);
-            }
-            default -> throw new RuntimeException("요일이 이상합니다!");
-        }
     }
 
     private Category getCategoryByLabel(String label) {

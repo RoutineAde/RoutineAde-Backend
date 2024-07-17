@@ -46,11 +46,10 @@ public class RoutineController {
     public ResponseEntity<RoutinesGetResponse> getRoutines(Principal principal,
                                                            @RequestParam String routineDate) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        RoutinesGetResponse response = routineService.getRoutines(user, routineDate);
 
         return ResponseEntity
                 .status(OK)
-                .body(response);
+                .body(routineService.getRoutines(user, routineDate));
     }
 
     @Operation(summary = "루틴 생성", description = "사용자의 루틴을 생성하는 API")

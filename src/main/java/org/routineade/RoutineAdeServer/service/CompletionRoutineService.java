@@ -30,4 +30,9 @@ public class CompletionRoutineService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public Boolean getIsCompletionRoutine(User user, Routine routine) {
+        return completionRoutineRepository.existsByUserAndRoutine(user, routine);
+    }
+
 }
