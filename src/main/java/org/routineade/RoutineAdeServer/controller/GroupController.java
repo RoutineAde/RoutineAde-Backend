@@ -96,7 +96,7 @@ public class GroupController {
             @Parameter(name = "content", description = "채팅 내용", example = "오늘 루틴 모두 완료했습니다^^"),
             @Parameter(name = "image", description = "채팅 첨부 이미지")
     })
-    @PostMapping("/{groupId}")
+    @PostMapping("/{groupId}/chatting")
     public ResponseEntity<Void> createGroupChatting(Principal principal,
                                                     @PathVariable(value = "groupId") Long groupId,
                                                     @Valid @RequestBody GroupChattingCreateRequest request) {
@@ -112,7 +112,7 @@ public class GroupController {
     @Parameters({
             @Parameter(name = "groupId", description = "채팅을 조회할 그룹 ID", example = "1")
     })
-    @GetMapping("/{groupId}")
+    @GetMapping("/{groupId}/chatting")
     public ResponseEntity<GroupChattingGetResponse> getGroupChatting(Principal principal,
                                                                      @PathVariable(value = "groupId") Long groupId) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
@@ -121,5 +121,5 @@ public class GroupController {
                 .status(OK)
                 .body(groupService.getGroupChatting(user, groupId));
     }
-    
+
 }
