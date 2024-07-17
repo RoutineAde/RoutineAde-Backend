@@ -1,11 +1,5 @@
 package org.routineade.RoutineAdeServer.service;
 
-import static org.routineade.RoutineAdeServer.domain.common.Category.CARE;
-import static org.routineade.RoutineAdeServer.domain.common.Category.DAILY;
-import static org.routineade.RoutineAdeServer.domain.common.Category.HEALTH;
-import static org.routineade.RoutineAdeServer.domain.common.Category.OTHER;
-import static org.routineade.RoutineAdeServer.domain.common.Category.SELF_IMPROVEMENT;
-
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Group;
@@ -94,14 +88,12 @@ public class GroupService {
     }
 
     private Category extractCategory(String groupCategory) {
-        return switch (groupCategory) {
-            case "DAILY" -> DAILY;
-            case "HEALTH" -> HEALTH;
-            case "CARE" -> CARE;
-            case "SELF_IMPROVEMENT" -> SELF_IMPROVEMENT;
-            case "OTHER" -> OTHER;
-            default -> throw new RuntimeException("카테고리가 잘못되었습니다!");
-        };
+        for (Category category : Category.values()) {
+            if (category.getLabel().equals(groupCategory)) {
+                return category;
+            }
+        }
+        throw new RuntimeException("카테고리 형식이 잘못됐습니다!");
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineDetail;
@@ -32,7 +33,7 @@ public class RoutineService {
         Routine routine = Routine.builder()
                 .user(user)
                 .routineTitle(request.routineTitle())
-                .routineCategory(request.routineCategory())
+                .routineCategory(extractCategory(request.routineCategory()))
                 .isAlarmEnabled(request.isAlarmEnabled())
                 .startDate(request.startDate().replaceAll("\\.", "-"))
                 .isRepeatDays(isRepeatDays)
@@ -50,7 +51,8 @@ public class RoutineService {
 
         boolean[] isRepeatDays = setRepeatDays(request.repeatDays());
 
-        routine.updateValue(request.routineTitle(), request.routineCategory(), request.isAlarmEnabled(), isRepeatDays);
+        routine.updateValue(request.routineTitle(), extractCategory(request.routineCategory()),
+                request.isAlarmEnabled(), isRepeatDays);
     }
 
     @Transactional
@@ -142,6 +144,15 @@ public class RoutineService {
             }
             default -> throw new RuntimeException("요일이 이상합니다!");
         }
+    }
+
+    private Category extractCategory(String label) {
+        for (Category category : Category.values()) {
+            if (category.getLabel().equals(label)) {
+                return category;
+            }
+        }
+        throw new RuntimeException("카테고리 형식이 잘못됐습니다!");
     }
 
 }

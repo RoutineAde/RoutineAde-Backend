@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.routineade.RoutineAdeServer.domain.common.Category;
 
 public record RoutineCreateRequest(
         @NotBlank(message = "루틴명은 비어 있거나, 공백일 수 없습니다.")
@@ -12,7 +11,7 @@ public record RoutineCreateRequest(
         @Size(min = 1, max = 15, message = "루틴명은 15자를 초과할 수 없습니다.")
         String routineTitle,
         @NotNull(message = "카테고리는 1개 이상 선택해야 합니다.")
-        Category routineCategory,
+        String routineCategory,
         @NotNull(message = "알람 여부는 null일 수 없습니다.")
         Boolean isAlarmEnabled,
         @NotNull(message = "루틴 시작 날짜는 null일 수 없습니다.")

@@ -56,7 +56,7 @@ public class RoutineController {
     @Operation(summary = "루틴 생성", description = "사용자의 루틴을 생성하는 API")
     @Parameters({
             @Parameter(name = "routineTitle", description = "루틴명", example = "하루 30분 운동하기"),
-            @Parameter(name = "routineCategory", description = "루틴 카테고리 (DAILY, HEALTH, CARE, SELF_IMPROVEMENT, OTHER 중 하나)", example = "HEALTH"),
+            @Parameter(name = "routineCategory", description = "루틴 카테고리 (일상, 건강, 자기관리, 자기개발, 기타 중 하나)", example = "HEALTH"),
             @Parameter(name = "isAlarmEnabled", description = "루틴 알람 여부", example = "true"),
             @Parameter(name = "startDate", description = "루틴 시작 날짜", example = "2024.06.25"),
             @Parameter(name = "repeatDays", description = "루틴 반복 요일 (Mon, Tue, Wed, Thu, Fri, Sat, Sun 중 한 개 이상)", example = "[\"Mon\", \"Wed\", \"Sun\"]")
@@ -76,7 +76,7 @@ public class RoutineController {
     @Parameters({
             @Parameter(name = "routineId", description = "수정할 루틴의 ID", example = "1"),
             @Parameter(name = "routineTitle", description = "루틴명", example = "하루 30분 운동하기"),
-            @Parameter(name = "routineCategory", description = "루틴 카테고리 (DAILY, HEALTH, CARE, SELF_IMPROVEMENT, OTHER 중 하나)", example = "HEALTH"),
+            @Parameter(name = "routineCategory", description = "루틴 카테고리 (일상, 건강, 자기관리, 자기개발, 기타 중 하나)", example = "HEALTH"),
             @Parameter(name = "isAlarmEnabled", description = "루틴 알람 여부", example = "true"),
             @Parameter(name = "repeatDays", description = "루틴 반복 요일 (Mon, Tue, Wed, Thu, Fri, Sat, Sun 중 한 개 이상)", example = "[Mon, Wed, Sun]")
     })

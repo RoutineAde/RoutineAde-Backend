@@ -12,7 +12,7 @@ public record GroupUpdateRequest(
         String groupTitle,
         @Size(max = 4, message = "그룹 비밀번호는 4자를 초과할 수 없습니다.")
         String groupPassword,
-        @NotNull(message = "그룹명은 필수값입니다.")
+        @NotNull(message = "그룹카테고리는 필수값입니다.")
         String groupCategory,
         @Min(value = 2, message = "그룹 모집 인원은 최소 2명이어야 합니다.")
         @Max(value = 30, message = "그룹 모집 인원은 최대 30명이어야 합니다.")
