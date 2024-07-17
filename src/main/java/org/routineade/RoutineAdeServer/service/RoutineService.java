@@ -20,13 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RoutineService {
 
     private final RoutineRepository routineRepository;
     private final UserHistoryService userHistoryService;
 //    private final AlarmService alarmService;
 
-    @Transactional
     public void createRoutine(User user, RoutineCreateRequest request) {
         boolean[] isRepeatDays = setRepeatDays(request.repeatDays());
 
@@ -42,7 +42,6 @@ public class RoutineService {
         routineRepository.save(routine);
     }
 
-    @Transactional
     public void updateRoutine(User user, Long routineId, RoutineUpdateRequest request) {
         Routine routine = getRoutineOrException(routineId);
         if (!routine.getUser().equals(user)) {
@@ -55,7 +54,6 @@ public class RoutineService {
                 request.isAlarmEnabled(), isRepeatDays);
     }
 
-    @Transactional
     public void deleteRoutine(User user, Long routineId) {
         Routine routine = getRoutineOrException(routineId);
         if (!routine.getUser().equals(user)) {
@@ -65,7 +63,6 @@ public class RoutineService {
         routineRepository.delete(routine);
     }
 
-    @Transactional
     public void checkRoutine(User user, Long routineId, CheckRoutineRequest request) {
         Routine routine = getRoutineOrException(routineId);
         if (!routine.getUser().equals(user)) {

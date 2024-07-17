@@ -16,11 +16,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
 
+    @Transactional(readOnly = true)
     public User getUserOrException(Long userId) {
         return userRepository.findById(userId).orElseThrow(() ->
                 new RuntimeException("해당 ID를 가진 유저가 없습니다."));
     }
 
+    @Transactional(readOnly = true)
     public String login(Long userId) {
         User user = getUserOrException(userId);
 
