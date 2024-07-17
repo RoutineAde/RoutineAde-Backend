@@ -13,36 +13,32 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.routineade.RoutineAdeServer.domain.common.Emotion;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GroupChatting {
+public class UserEmotion {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(nullable = false)
-    private Long groupChattingId;
+    private Long userEmotionId;
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
-    private String content;
+    @Column(columnDefinition = "varchar(5)", nullable = false)
+    private Emotion emotion;
 
     @Column(nullable = false)
     private LocalDate createdDate;
-
-    @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
-    public GroupChatting(String content, Group group, User user) {
-        this.content = content;
-        this.createdDate = LocalDate.now();
-        this.group = group;
+    public UserEmotion(Emotion emotion, LocalDate createdDate, User user) {
+        this.emotion = emotion;
+        this.createdDate = createdDate;
         this.user = user;
     }
 

@@ -8,25 +8,29 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
-import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 
 @Entity
 @Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GroupMember extends BaseEntity {
+public class GroupMember {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(nullable = false)
     private Long groupMemberId;
+
     @Column(columnDefinition = "boolean default true", nullable = false)
     private Boolean isGroupAlarmEnabled;
+
+    @Column(nullable = false)
+    private LocalDate groupJoinDate;
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
@@ -37,9 +41,11 @@ public class GroupMember extends BaseEntity {
     private User user;
 
     @Builder
-    public GroupMember(String content, Boolean isGroupAlarmEnabled, Group group, User user) {
+    public GroupMember(Boolean isGroupAlarmEnabled, Group group, User user) {
         this.isGroupAlarmEnabled = isGroupAlarmEnabled;
+        this.groupJoinDate = LocalDate.now();
         this.group = group;
         this.user = user;
     }
+    
 }

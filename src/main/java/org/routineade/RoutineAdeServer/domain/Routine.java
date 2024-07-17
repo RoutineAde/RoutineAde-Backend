@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.domain;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 import jakarta.persistence.Column;
@@ -8,8 +9,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,61 +42,32 @@ public class Routine {
     private Boolean isAlarmEnabled;
 
     @Column(nullable = false)
-    private String startDate;
+    private LocalDate startDate;
 
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatMon;
+    @Column(columnDefinition = "boolean default true", nullable = false)
+    private Boolean isPersonal;
 
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatTue;
+    @Column(nullable = false)
+    private Long createdUserId;
 
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatWed;
+    @OneToMany(mappedBy = "routine", cascade = ALL)
+    private List<CompletionRoutine> completionRoutines = new ArrayList<>();
 
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatThu;
+    @OneToMany(mappedBy = "routine", cascade = ALL)
+    private List<GroupRoutine> groupRoutines = new ArrayList<>();
 
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatFri;
-
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatSat;
-
-    @Column(columnDefinition = "boolean default false", nullable = false)
-    private Boolean repeatSun;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @OneToMany(mappedBy = "routine", cascade = ALL)
+    private List<RoutineRepeatDay> routineRepeatDays = new ArrayList<>();
 
     @Builder
-    public Routine(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, String startDate,
-                   boolean[] isRepeatDays, User user) {
+    public Routine(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, LocalDate startDate,
+                   Boolean isPersonal, Long createdUserId) {
         this.routineTitle = routineTitle;
         this.routineCategory = routineCategory;
         this.isAlarmEnabled = isAlarmEnabled;
         this.startDate = startDate;
-        this.repeatMon = isRepeatDays[0];
-        this.repeatTue = isRepeatDays[1];
-        this.repeatWed = isRepeatDays[2];
-        this.repeatThu = isRepeatDays[3];
-        this.repeatFri = isRepeatDays[4];
-        this.repeatSat = isRepeatDays[5];
-        this.repeatSun = isRepeatDays[6];
-        this.user = user;
+        this.isPersonal = isPersonal;
+        this.createdUserId = createdUserId;
     }
 
-    public void updateValue(String routineTitle, Category routineCategory, Boolean isAlarmEnabled,
-                            boolean[] isRepeatDays) {
-        this.routineTitle = routineTitle;
-        this.routineCategory = routineCategory;
-        this.isAlarmEnabled = isAlarmEnabled;
-        this.repeatMon = isRepeatDays[0];
-        this.repeatTue = isRepeatDays[1];
-        this.repeatWed = isRepeatDays[2];
-        this.repeatThu = isRepeatDays[3];
-        this.repeatFri = isRepeatDays[4];
-        this.repeatSat = isRepeatDays[5];
-        this.repeatSun = isRepeatDays[6];
-    }
 }

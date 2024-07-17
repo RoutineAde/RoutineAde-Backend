@@ -17,33 +17,30 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GroupChatting {
+public class CompletionRoutine {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(nullable = false)
-    private Long groupChattingId;
-
-    @Column(columnDefinition = "varchar(255)", nullable = false)
-    private String content;
+    private Long CompletionRoutineId;
 
     @Column(nullable = false)
-    private LocalDate createdDate;
+    private LocalDate completionDate;
 
     @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
+    @JoinColumn(name = "routine_id", nullable = false)
+    private Routine routine;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
-    public GroupChatting(String content, Group group, User user) {
-        this.content = content;
-        this.createdDate = LocalDate.now();
-        this.group = group;
+    public CompletionRoutine(LocalDate completionDate, Routine routine, User user) {
+        this.completionDate = completionDate;
+        this.routine = routine;
         this.user = user;
+        this.completionDate = LocalDate.now();
     }
 
 }

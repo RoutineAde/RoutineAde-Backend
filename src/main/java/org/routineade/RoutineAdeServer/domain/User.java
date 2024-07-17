@@ -14,12 +14,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
+import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
+public class User {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -29,7 +30,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(100)", nullable = false)
     private String email;
 
-    @Column(columnDefinition = "varchar(100)", nullable = false)
+    @Column(columnDefinition = "varchar(255)", nullable = false)
     private String profileImage;
 
     @Column(columnDefinition = "varchar(10)", nullable = false)
@@ -38,17 +39,8 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(10)", nullable = false)
     private String intro;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "boolean default true", nullable = false)
     private Boolean isPublic;
-
-    @OneToMany(mappedBy = "user", cascade = ALL)
-    private List<Routine> routines = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = ALL)
-    private List<UserHistory> userHistories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = ALL)
-    private List<UserCategoryStatistics> userCategoryStatistics = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = ALL)
     private List<Alarm> alarms = new ArrayList<>();
@@ -56,11 +48,21 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = ALL)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = ALL)
+    private List<CompletionRoutine> completionRoutines = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = ALL)
+    private List<GroupChatting> groupChattings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = ALL)
+    private List<UserEmotion> userEmotions = new ArrayList<>();
+
     @Builder
-    public User(String email, String profileImage, String nickname, String intro, Boolean isPublic) {
+    public User(String email, String profileImage, String nickname, String intro) {
         this.email = email;
         this.profileImage = profileImage;
         this.nickname = nickname;
         this.intro = intro;
     }
+
 }
