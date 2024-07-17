@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Routine;
@@ -31,7 +32,7 @@ public class RoutineService {
         Routine routine = Routine.builder()
                 .createdUserId(user.getUserId())
                 .routineTitle(request.routineTitle())
-                .routineCategory(extractCategory(request.routineCategory()))
+                .routineCategory(getCategoryByLabel(request.routineCategory()))
                 .isAlarmEnabled(request.isAlarmEnabled())
                 .startDate(LocalDate.parse(request.startDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd")))
                 .build();
@@ -43,14 +44,19 @@ public class RoutineService {
 
     public void updateRoutine(User user, Long routineId, RoutineUpdateRequest request) {
         Routine routine = getRoutineOrException(routineId);
-        if (!routine.getUser().equals(user)) {
+
+        if (!routine.getCreatedUserId().equals(user.getUserId())) {
             throw new RuntimeException("자신의 루틴만 수정할 수 있습니다!");
         }
 
-        boolean[] isRepeatDays = setRepeatDays(request.repeatDays());
+        if (!routine.getIsPersonal()) {
+            throw new RuntimeException("개인 루틴만 수정할 수 있습니다!");
+        }
 
-        routine.updateValue(request.routineTitle(), extractCategory(request.routineCategory()),
-                request.isAlarmEnabled(), isRepeatDays);
+        routine.update(request.routineTitle(), getCategoryByLabel(request.routineCategory()), request.isAlarmEnabled(),
+                LocalDate.parse(request.startDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+
+        routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
     }
 
     public void deleteRoutine(User user, Long routineId) {
@@ -142,13 +148,11 @@ public class RoutineService {
         }
     }
 
-    private Category extractCategory(String label) {
-        for (Category category : Category.values()) {
-            if (category.getLabel().equals(label)) {
-                return category;
-            }
-        }
-        throw new RuntimeException("카테고리 형식이 잘못됐습니다!");
+    private Category getCategoryByLabel(String label) {
+        return Arrays.stream(Category.values())
+                .filter(category -> category.getLabel().equals(label))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("카테고리 형식이 잘못됐습니다!"));
     }
 
 }

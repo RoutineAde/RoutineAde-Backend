@@ -20,7 +20,13 @@ public class RoutineRepeatDayService {
     public void createRoutineRepeatDay(Routine routine, List<String> repeatDays) {
         repeatDays.stream()
                 .map(this::getDayOfLabel)
-                .forEach(rd -> routineRepeatDayRepository.save(RoutineRepeatDay.of(rd, routine)));
+                .forEach(day -> routineRepeatDayRepository.save(RoutineRepeatDay.of(day, routine)));
+    }
+
+    public void updateRoutineRepeatDay(Routine routine, List<String> repeatDays) {
+        routineRepeatDayRepository.deleteAll(routine.getRoutineRepeatDays());
+        
+        createRoutineRepeatDay(routine, repeatDays);
     }
 
     private Day getDayOfLabel(String label) {

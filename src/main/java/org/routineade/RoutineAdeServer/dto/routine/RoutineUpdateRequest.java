@@ -15,6 +15,9 @@ public record RoutineUpdateRequest(
         String routineCategory,
         @NotNull(message = "반복 요일은 1개 이상 선택해야 합니다.")
         List<String> repeatDays,
+        @NotNull(message = "루틴 시작 날짜는 null일 수 없습니다.")
+        @NotBlank(message = "루틴 시작 날짜는 비어 있거나, 공백일 수 없습니다.")
+        String startDate,
         @NotNull(message = "알람 여부는 null일 수 없습니다.")
         Boolean isAlarmEnabled
 ) {

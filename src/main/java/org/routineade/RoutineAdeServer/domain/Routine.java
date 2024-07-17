@@ -70,4 +70,11 @@ public class Routine {
         this.createdUserId = createdUserId;
     }
 
+    public void update(String routineTitle, Category routineCategory, Boolean isAlarmEnabled, LocalDate startDate) {
+        this.routineTitle = routineTitle;
+        this.routineCategory = routineCategory;
+        this.isAlarmEnabled = isAlarmEnabled;
+        this.startDate = startDate;
+    }
+
 }
