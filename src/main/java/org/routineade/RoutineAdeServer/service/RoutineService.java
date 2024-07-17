@@ -25,21 +25,20 @@ public class RoutineService {
 
     private final RoutineRepository routineRepository;
     private final UserHistoryService userHistoryService;
-//    private final AlarmService alarmService;
+    private final RoutineRepeatDayService routineRepeatDayService;
 
     public void createRoutine(User user, RoutineCreateRequest request) {
-        boolean[] isRepeatDays = setRepeatDays(request.repeatDays());
-
         Routine routine = Routine.builder()
-                .user(user)
+                .createdUserId(user.getUserId())
                 .routineTitle(request.routineTitle())
                 .routineCategory(extractCategory(request.routineCategory()))
                 .isAlarmEnabled(request.isAlarmEnabled())
-                .startDate(request.startDate().replaceAll("\\.", "-"))
-                .isRepeatDays(isRepeatDays)
+                .startDate(LocalDate.parse(request.startDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd")))
                 .build();
 
         routineRepository.save(routine);
+
+        routineRepeatDayService.createRoutineRepeatDay(routine, request.repeatDays());
     }
 
     public void updateRoutine(User user, Long routineId, RoutineUpdateRequest request) {
