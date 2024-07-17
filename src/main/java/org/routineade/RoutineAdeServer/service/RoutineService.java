@@ -61,8 +61,13 @@ public class RoutineService {
 
     public void deleteRoutine(User user, Long routineId) {
         Routine routine = getRoutineOrException(routineId);
-        if (!routine.getUser().equals(user)) {
+
+        if (!routine.getCreatedUserId().equals(user.getUserId())) {
             throw new RuntimeException("자신의 루틴만 삭제할 수 있습니다!");
+        }
+
+        if (!routine.getIsPersonal()) {
+            throw new RuntimeException("개인 루틴만 삭제할 수 있습니다!");
         }
 
         routineRepository.delete(routine);
