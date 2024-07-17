@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
-import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
+import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
@@ -108,20 +108,21 @@ public class RoutineController {
                 .build();
     }
 
-    @Operation(summary = "루틴 수정", description = "사용자의 루틴을 수정하는 API")
+    @Operation(summary = "루틴 완료 상태 변경", description = "사용자의 루틴에 완료/미완료를 체크하는 API")
     @Parameters({
-            @Parameter(name = "routineId", description = "수정할 루틴의 ID", example = "1"),
-            @Parameter(name = "checkRoutineDate", description = "루틴 체크할 날짜", example = "2024.06.25"),
+            @Parameter(name = "routineId", description = "완료 상태를 변경할 루틴의 ID", example = "1"),
+            @Parameter(name = "date", description = "루틴의 완료 상태를 변경할 날짜", example = "2024.06.25"),
     })
-    @PutMapping("/{routineId}/check")
-    public ResponseEntity<Void> checkRoutine(Principal principal,
-                                             @PathVariable Long routineId,
-                                             @Valid @RequestBody CheckRoutineRequest request) {
+    @PutMapping("/{routineId}/completion")
+    public ResponseEntity<Void> setRoutineCompletionStatus(Principal principal,
+                                                           @PathVariable Long routineId,
+                                                           @Valid @RequestBody CompletionRoutineRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        routineService.checkRoutine(user, routineId, request);
+        routineService.setRoutineCompletionStatus(user, routineId, request);
 
         return ResponseEntity
                 .status(NO_CONTENT)
                 .build();
     }
+
 }

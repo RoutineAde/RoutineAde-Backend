@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
-import org.routineade.RoutineAdeServer.dto.routine.CheckRoutineRequest;
+import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineDetail;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
@@ -27,6 +27,7 @@ public class RoutineService {
     private final RoutineRepository routineRepository;
     private final UserHistoryService userHistoryService;
     private final RoutineRepeatDayService routineRepeatDayService;
+    private final CompletionRoutineService completionRoutineService;
 
     public void createRoutine(User user, RoutineCreateRequest request) {
         Routine routine = Routine.builder()
@@ -73,18 +74,16 @@ public class RoutineService {
         routineRepository.delete(routine);
     }
 
-    public void checkRoutine(User user, Long routineId, CheckRoutineRequest request) {
+    public void setRoutineCompletionStatus(User user, Long routineId, CompletionRoutineRequest request) {
         Routine routine = getRoutineOrException(routineId);
-        if (!routine.getUser().equals(user)) {
-            throw new RuntimeException("자신의 루틴만 체크할 수 있습니다!");
-        }
 
-        LocalDate routineDate = LocalDate.parse(request.checkRoutineDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        LocalDate routineDate = LocalDate.parse(request.date(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+
         if (routineDate.isAfter(LocalDate.now())) {
             throw new RuntimeException("미래의 루틴을 완료할 수 없습니다!");
         }
 
-        userHistoryService.checkRoutine(user, routineDate, routineId);
+        completionRoutineService.setCompletionRoutineStatus(user, routine, routineDate);
     }
 
     @Transactional(readOnly = true)
