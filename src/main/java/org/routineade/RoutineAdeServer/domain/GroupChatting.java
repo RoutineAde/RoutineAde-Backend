@@ -12,11 +12,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.routineade.RoutineAdeServer.domain.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GroupChatting {
+public class GroupChatting extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -29,19 +30,20 @@ public class GroupChatting {
     @Column
     private String image;
 
-    @Column(nullable = false)
-    private Long writerUserId;
-
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Builder
-    public GroupChatting(String content, String image, Long writerUserId, Group group) {
+    public GroupChatting(String content, String image, Group group, User user) {
         this.content = content;
         this.image = image;
-        this.writerUserId = writerUserId;
         this.group = group;
+        this.user = user;
     }
-    
+
 }

@@ -5,8 +5,6 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,11 +16,11 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Column(nullable = false)
-    protected String createdDate;
+    protected LocalDateTime createdDate;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdDate = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.forLanguageTag("ko")));
+        this.createdDate = LocalDateTime.now();
     }
+
 }

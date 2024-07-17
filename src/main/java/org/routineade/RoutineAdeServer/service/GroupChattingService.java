@@ -28,7 +28,7 @@ public class GroupChattingService {
                 .group(group)
                 .content(request.content())
                 .image(request.image() == null ? null : uploadToS3AndGetURL(request.image()))
-                .writerUserId(user.getUserId())
+                .user(user)
                 .build();
 
         groupChattingRepository.save(groupChatting);
@@ -39,7 +39,7 @@ public class GroupChattingService {
         List<GroupChatting> groupChattingList = groupChattingRepository.findAllByGroup(group);
 
         return GroupChattingGetResponse.of(
-                groupChattingList.stream().map(gc -> GroupChattingGetInfo.of(gc, user.getUserId())).toList());
+                groupChattingList.stream().map(gc -> GroupChattingGetInfo.of(gc, user)).toList());
     }
 
     private String uploadToS3AndGetURL(MultipartFile image) {
