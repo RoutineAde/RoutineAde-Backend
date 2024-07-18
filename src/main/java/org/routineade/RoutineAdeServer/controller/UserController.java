@@ -1,6 +1,6 @@
 package org.routineade.RoutineAdeServer.controller;
 
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,8 +12,8 @@ import java.security.Principal;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
-import org.routineade.RoutineAdeServer.dto.user.CreateDailyMoodRequest;
-import org.routineade.RoutineAdeServer.service.UserHistoryService;
+import org.routineade.RoutineAdeServer.dto.userEmotion.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final UserHistoryService userHistoryService;
+    private UserEmotionService userEmotionService;
 
     @Operation(summary = "로그인", description = "로그인하여 인증용 토큰을 조회하는 API")
     @Parameters({
@@ -47,16 +47,16 @@ public class UserController {
     @Operation(summary = "감정 등록", description = "사용자가 특정 날짜에 감정을 등록하는 API")
     @Parameters({
             @Parameter(name = "date", description = "감정을 등록할 날짜", example = "2024.06.25"),
-            @Parameter(name = "dailyMood", description = "등록할 감정 (GOOD, OK, SAD, ANGRY 중 하나)", example = "GOOD")
+            @Parameter(name = "emotion", description = "등록할 감정 (GOOD, OK, SAD, ANGRY 중 하나)", example = "GOOD")
     })
     @PostMapping
-    public ResponseEntity<Void> createDailyMood(Principal principal,
-                                                @Valid @RequestBody CreateDailyMoodRequest request) {
+    public ResponseEntity<Void> createUserEmotion(Principal principal,
+                                                  @Valid @RequestBody UserEmotionCreateRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        userHistoryService.createDailyMood(user, request);
+        userEmotionService.createUserEmotion(user, request);
 
         return ResponseEntity
-                .status(NO_CONTENT)
+                .status(CREATED)
                 .build();
     }
 
@@ -66,4 +66,5 @@ public class UserController {
                 .status(OK)
                 .body("서버 호출 성공!");
     }
+
 }
