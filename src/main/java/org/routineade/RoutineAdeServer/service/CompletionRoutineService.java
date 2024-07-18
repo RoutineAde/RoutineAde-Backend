@@ -17,7 +17,7 @@ public class CompletionRoutineService {
     private final CompletionRoutineRepository completionRoutineRepository;
 
     public void setCompletionRoutineStatus(User user, Routine routine, LocalDate date) {
-        if (completionRoutineRepository.existsByUserAndRoutineAndCompletionDate(user, routine, date)) {
+        if (getIsCompletionRoutine(user, routine, date)) {
             completionRoutineRepository.deleteByUserAndRoutineAndCompletionDate(user, routine, date);
         } else {
             CompletionRoutine completionRoutine = CompletionRoutine.builder()
@@ -31,8 +31,8 @@ public class CompletionRoutineService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean getIsCompletionRoutine(User user, Routine routine) {
-        return completionRoutineRepository.existsByUserAndRoutine(user, routine);
+    public Boolean getIsCompletionRoutine(User user, Routine routine, LocalDate date) {
+        return completionRoutineRepository.existsByUserAndRoutineAndCompletionDate(user, routine, date);
     }
 
 }

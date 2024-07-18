@@ -34,17 +34,19 @@ public class RoutineRepeatDayService {
     }
 
     public List<Routine> getPersonalRoutinesByDay(User user, DayOfWeek dayOfWeek) {
-        return routineRepeatDayRepository.findByUserAndDay(user.getUserId(),
-                getDayOfLabel(dayOfWeek.getDisplayName(
-                        TextStyle.SHORT, Locale.KOREAN))).stream().map(RoutineRepeatDay::getRoutine).toList();
+        return routineRepeatDayRepository.findByUserAndDay(user.getUserId(), getDayOfDayOfWeek(dayOfWeek)).stream()
+                .map(RoutineRepeatDay::getRoutine).toList();
     }
 
-    public List<Routine> getRoutinesByDay(List<Routine> routines, DayOfWeek dayOfWeek) {
+    public List<Routine> filterRoutinesByDay(List<Routine> routines, DayOfWeek dayOfWeek) {
         routines.removeIf(
                 routine -> !routine.getRoutineRepeatDays().stream().map(RoutineRepeatDay::getRepeatDay).toList()
-                        .contains(getDayOfLabel(dayOfWeek.getDisplayName(
-                                TextStyle.SHORT, Locale.KOREAN))));
+                        .contains(getDayOfDayOfWeek(dayOfWeek)));
         return routines;
+    }
+
+    private Day getDayOfDayOfWeek(DayOfWeek dayOfWeek) {
+        return getDayOfLabel(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN));
     }
 
     private Day getDayOfName(String name) {

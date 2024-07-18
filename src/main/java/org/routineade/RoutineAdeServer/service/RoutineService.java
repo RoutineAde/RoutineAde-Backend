@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Group;
@@ -14,7 +15,7 @@ import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
-import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineDetail;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class RoutineService {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
     private final RoutineRepository routineRepository;
     private final RoutineRepeatDayService routineRepeatDayService;
     private final CompletionRoutineService completionRoutineService;
@@ -36,26 +38,42 @@ public class RoutineService {
 
     @Transactional(readOnly = true)
     public RoutinesGetResponse getRoutines(User user, String routineDate) {
-        LocalDate date = LocalDate.parse(routineDate, DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user, date.getDayOfWeek());
+        LocalDate date = LocalDate.parse(routineDate, DATE_FORMATTER);
+        List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user,
+                date.getDayOfWeek()); // 요일로 개인 루틴 구함
 
+        /*
+        개인 루틴
+         */
         List<PersonalRoutineGetResponse> personalRoutineGetResponses = new ArrayList<>();
         for (Routine routine : personalRoutines) {
             if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
-                personalRoutineGetResponses.add(PersonalRoutineGetResponse.of(routine));
+                List<String> repeatDays = routine.getRoutineRepeatDays().stream()
+                        .map(rd -> rd.getRepeatDay().getLabel()).toList();
+
+                Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
+
+                personalRoutineGetResponses.add(PersonalRoutineGetResponse.of(
+                        routine, repeatDays, routine.getStartDate().format(DATE_FORMATTER), isCompletion
+                ));
             }
         }
 
+        /*
+        그룹 루틴
+         */
         List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
-        for (Group userGroup : user.getGroupMembers().stream().map(GroupMember::getGroup).collect(Collectors.toSet())) {
+        Set<Group> userGroups = user.getGroupMembers().stream().map(GroupMember::getGroup).collect(Collectors.toSet());
+        for (Group userGroup : userGroups) {
             List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
+            List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
 
-            List<GroupRoutineDetail> groupRoutines = routineRepeatDayService.getRoutinesByDay(routines,
-                            date.getDayOfWeek()).stream()
-                    .map(r -> GroupRoutineDetail.of(r, completionRoutineService.getIsCompletionRoutine(user, r)))
+            List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
+                    .map(routine -> GroupRoutineInfo.of(routine,
+                            completionRoutineService.getIsCompletionRoutine(user, routine, date)))
                     .toList();
 
-            groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutines));
+            groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
         }
 
         return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
@@ -68,7 +86,7 @@ public class RoutineService {
                 .routineTitle(request.routineTitle())
                 .routineCategory(getCategoryByLabel(request.routineCategory()))
                 .isAlarmEnabled(request.isAlarmEnabled())
-                .startDate(LocalDate.parse(request.startDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd")))
+                .startDate(LocalDate.parse(request.startDate(), DATE_FORMATTER))
                 .build();
 
         routineRepository.save(routine);
@@ -88,7 +106,7 @@ public class RoutineService {
         }
 
         routine.update(request.routineTitle(), getCategoryByLabel(request.routineCategory()), request.isAlarmEnabled(),
-                LocalDate.parse(request.startDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+                LocalDate.parse(request.startDate(), DATE_FORMATTER));
 
         routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
     }
@@ -110,7 +128,7 @@ public class RoutineService {
     public void setRoutineCompletionStatus(User user, Long routineId, CompletionRoutineRequest request) {
         Routine routine = getRoutineOrException(routineId);
 
-        LocalDate routineDate = LocalDate.parse(request.date(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        LocalDate routineDate = LocalDate.parse(request.date(), DATE_FORMATTER);
 
         if (routineDate.isAfter(LocalDate.now())) {
             throw new RuntimeException("미래의 루틴을 완료할 수 없습니다!");
