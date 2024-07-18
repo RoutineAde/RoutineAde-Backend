@@ -82,12 +82,17 @@ public class RoutineService {
     }
 
     public void createRoutine(User user, RoutineCreateRequest request) {
+        LocalDate startDate = LocalDate.parse(request.startDate(), DATE_FORMATTER);
+        if (startDate.isBefore(LocalDate.now())) {
+            throw new RuntimeException("루틴 시작일은 과거일 수 없습니다!");
+        }
+
         Routine routine = Routine.builder()
                 .createdUserId(user.getUserId())
                 .routineTitle(request.routineTitle())
                 .routineCategory(getCategoryByLabel(request.routineCategory()))
                 .isAlarmEnabled(request.isAlarmEnabled())
-                .startDate(LocalDate.parse(request.startDate(), DATE_FORMATTER))
+                .startDate(startDate)
                 .build();
 
         routineRepository.save(routine);
