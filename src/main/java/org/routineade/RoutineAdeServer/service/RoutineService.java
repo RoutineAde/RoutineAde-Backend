@@ -32,6 +32,7 @@ public class RoutineService {
     private final RoutineRepository routineRepository;
     private final RoutineRepeatDayService routineRepeatDayService;
     private final CompletionRoutineService completionRoutineService;
+    private final UserEmotionService userEmotionService;
 
     @Transactional(readOnly = true)
     public RoutinesGetResponse getRoutines(User user, String routineDate) {
@@ -57,7 +58,8 @@ public class RoutineService {
             groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutines));
         }
 
-        return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses);
+        return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
+                userEmotionService.getUserEmotionByDate(user, date));
     }
 
     public void createRoutine(User user, RoutineCreateRequest request) {
