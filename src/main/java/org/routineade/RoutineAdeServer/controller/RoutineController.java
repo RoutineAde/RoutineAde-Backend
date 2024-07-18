@@ -58,7 +58,7 @@ public class RoutineController {
             @Parameter(name = "routineCategory", description = "루틴 카테고리 (일상, 건강, 자기관리, 자기개발, 기타 중 하나)", example = "건강"),
             @Parameter(name = "isAlarmEnabled", description = "루틴 알람 여부", example = "true"),
             @Parameter(name = "startDate", description = "루틴 시작일", example = "2024.06.25"),
-            @Parameter(name = "repeatDays", description = "루틴 반복 요일 (Mon, Tue, Wed, Thu, Fri, Sat, Sun 중 한 개 이상)", example = "[\"Mon\", \"Wed\", \"Sun\"]")
+            @Parameter(name = "repeatDays", description = "루틴 반복 요일 (월, 화, 수, 목, 금, 토, 일 중 한 개 이상)", example = "[\"월\", \"수\", \"일\"]")
     })
     @PostMapping
     public ResponseEntity<Void> createRoutine(Principal principal,
@@ -78,7 +78,7 @@ public class RoutineController {
             @Parameter(name = "routineCategory", description = "루틴 카테고리 (일상, 건강, 자기관리, 자기개발, 기타 중 하나)", example = "건강"),
             @Parameter(name = "isAlarmEnabled", description = "루틴 알람 여부", example = "true"),
             @Parameter(name = "startDate", description = "루틴 시작일", example = "2024.07.18"),
-            @Parameter(name = "repeatDays", description = "루틴 반복 요일 (Mon, Tue, Wed, Thu, Fri, Sat, Sun 중 한 개 이상)", example = "[Mon, Wed, Sun]")
+            @Parameter(name = "repeatDays", description = "루틴 반복 요일 (월, 화, 수, 목, 금, 토, 일 중 한 개 이상)", example = "[\"화\", \"목\"]")
     })
     @PutMapping("/{routineId}")
     public ResponseEntity<Void> updateRoutine(Principal principal,

@@ -24,7 +24,7 @@ public class RoutineRepeatDayService {
 
     public void createRoutineRepeatDay(Routine routine, List<String> repeatDays) {
         repeatDays.stream()
-                .map(this::getDayOfName)
+                .map(this::getDayOfLabel)
                 .forEach(day -> routineRepeatDayRepository.save(RoutineRepeatDay.of(day, routine)));
     }
 
@@ -40,7 +40,7 @@ public class RoutineRepeatDayService {
 
     public List<Routine> filterRoutinesByDay(List<Routine> routines, DayOfWeek dayOfWeek) {
         List<Routine> mutableRoutines = new ArrayList<>(routines);
-        
+
         mutableRoutines.removeIf(
                 routine -> !routine.getRoutineRepeatDays().stream().map(RoutineRepeatDay::getRepeatDay).toList()
                         .contains(getDayOfDayOfWeek(dayOfWeek)));
@@ -50,13 +50,6 @@ public class RoutineRepeatDayService {
 
     private Day getDayOfDayOfWeek(DayOfWeek dayOfWeek) {
         return getDayOfLabel(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN));
-    }
-
-    private Day getDayOfName(String name) {
-        return Arrays.stream(Day.values())
-                .filter(d -> d.name().equals(name))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("반복 요일 형식이 잘못되었습니다."));
     }
 
     private Day getDayOfLabel(String label) {
