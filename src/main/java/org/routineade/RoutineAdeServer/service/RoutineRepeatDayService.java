@@ -2,6 +2,7 @@ package org.routineade.RoutineAdeServer.service;
 
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -38,10 +39,13 @@ public class RoutineRepeatDayService {
     }
 
     public List<Routine> filterRoutinesByDay(List<Routine> routines, DayOfWeek dayOfWeek) {
-        routines.removeIf(
+        List<Routine> mutableRoutines = new ArrayList<>(routines);
+        
+        mutableRoutines.removeIf(
                 routine -> !routine.getRoutineRepeatDays().stream().map(RoutineRepeatDay::getRepeatDay).toList()
                         .contains(getDayOfDayOfWeek(dayOfWeek)));
-        return routines;
+
+        return mutableRoutines;
     }
 
     private Day getDayOfDayOfWeek(DayOfWeek dayOfWeek) {
