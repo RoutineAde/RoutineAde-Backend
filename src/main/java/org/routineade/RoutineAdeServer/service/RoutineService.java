@@ -35,6 +35,7 @@ public class RoutineService {
     private final RoutineRepeatDayService routineRepeatDayService;
     private final CompletionRoutineService completionRoutineService;
     private final UserEmotionService userEmotionService;
+    private final GroupRoutineService groupRoutineService;
 
     @Transactional(readOnly = true)
     public RoutinesGetResponse getRoutines(User user, String routineDate) {
@@ -134,6 +135,11 @@ public class RoutineService {
             throw new RuntimeException("미래의 루틴을 완료할 수 없습니다!");
         }
 
+        if (!routine.getIsPersonal()) { // 그룹 루틴인가?
+            if (!groupRoutineService.userIsGroupIn(routine, user)) {
+                throw new RuntimeException("유저가 해당 루틴이 있는 그룹의 멤버가 아닙니다!");
+            }
+        }
         completionRoutineService.setCompletionRoutineStatus(user, routine, routineDate);
     }
 
