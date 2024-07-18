@@ -105,10 +105,10 @@ public class RoutineService {
             throw new RuntimeException("개인 루틴만 수정할 수 있습니다!");
         }
 
+        routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
+
         routine.update(request.routineTitle(), getCategoryByLabel(request.routineCategory()), request.isAlarmEnabled(),
                 LocalDate.parse(request.startDate(), DATE_FORMATTER));
-
-        routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
     }
 
     public void deleteRoutine(User user, Long routineId) {

@@ -28,8 +28,7 @@ public class RoutineRepeatDayService {
     }
 
     public void updateRoutineRepeatDay(Routine routine, List<String> repeatDays) {
-        routineRepeatDayRepository.deleteAll(routine.getRoutineRepeatDays());
-
+        routineRepeatDayRepository.deleteAllByRoutine(routine);
         createRoutineRepeatDay(routine, repeatDays);
     }
 
