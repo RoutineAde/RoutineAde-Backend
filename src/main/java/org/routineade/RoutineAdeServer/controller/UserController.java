@@ -60,6 +60,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "서버 상태 체크", description = "서버가 정상적으로 작동중인지 확인하는 API")
     @GetMapping("/health")
     public ResponseEntity<String> check() {
         return ResponseEntity
