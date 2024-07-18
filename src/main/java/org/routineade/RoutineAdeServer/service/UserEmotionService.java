@@ -25,6 +25,11 @@ public class UserEmotionService {
 
     public void createUserEmotion(User user, UserEmotionCreateRequest request) {
         LocalDate date = LocalDate.parse(request.date(), DATE_FORMATTER);
+
+        if (LocalDate.now().isBefore(date)) {
+            throw new RuntimeException("미래날짜에 미리 감정을 등록할 수 없습니다!");
+        }
+
         if (getUserEmotionOrException(user, date) != null) {
             throw new RuntimeException("유저가 이미 해당 날짜에 감정을 등록했습니다!");
         }
