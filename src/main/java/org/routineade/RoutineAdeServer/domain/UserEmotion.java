@@ -4,6 +4,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -25,6 +27,7 @@ public class UserEmotion {
     @Column(nullable = false)
     private Long userEmotionId;
 
+    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(5)", nullable = false)
     private Emotion emotion;
 

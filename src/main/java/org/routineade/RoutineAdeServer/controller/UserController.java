@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private UserEmotionService userEmotionService;
+    private final UserEmotionService userEmotionService;
 
     @Operation(summary = "로그인", description = "로그인하여 인증용 토큰을 조회하는 API")
     @Parameters({
@@ -49,7 +49,7 @@ public class UserController {
             @Parameter(name = "date", description = "감정을 등록할 날짜", example = "2024.06.25"),
             @Parameter(name = "emotion", description = "등록할 감정 (GOOD, OK, SAD, ANGRY 중 하나)", example = "GOOD")
     })
-    @PostMapping
+    @PostMapping("/emotion")
     public ResponseEntity<Void> createUserEmotion(Principal principal,
                                                   @Valid @RequestBody UserEmotionCreateRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
