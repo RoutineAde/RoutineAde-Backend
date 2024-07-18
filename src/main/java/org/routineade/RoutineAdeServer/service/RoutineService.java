@@ -69,6 +69,10 @@ public class RoutineService {
             List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
             List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
 
+            if (filterRoutines.isEmpty()) {
+                continue;
+            }
+
             List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
                     .map(routine -> GroupRoutineInfo.of(routine,
                             completionRoutineService.getIsCompletionRoutine(user, routine, date)))
