@@ -25,7 +25,7 @@ public class GroupMemberService {
     }
 
     public boolean isNotMember(Group group, User user) {
-        return groupMemberRepository.existsByGroupAndUser(group, user);
+        return !groupMemberRepository.existsByGroupAndUser(group, user);
     }
 
 }

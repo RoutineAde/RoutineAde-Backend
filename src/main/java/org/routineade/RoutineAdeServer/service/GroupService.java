@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.util.Arrays;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Group;
@@ -25,7 +26,7 @@ public class GroupService {
     public void createGroup(User user, GroupCreateRequest request) {
         Group group = Group.builder()
                 .groupTitle(request.groupTitle())
-                .groupCategory(extractCategory(request.groupCategory()))
+                .groupCategory(getCategoryByLabel(request.groupCategory()))
                 .description(request.description())
                 .maxMember(request.maxMember())
                 .createdUserId(user.getUserId())
@@ -37,17 +38,6 @@ public class GroupService {
         groupMemberService.createGroupMember(group, user);
     }
 
-    public void deleteGroup(User user, Long groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
-
-        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
-            throw new RuntimeException("해당 그룹을 삭제할 권한이 없습니다!");
-        }
-
-        groupRepository.delete(group);
-    }
-
     public void updateGroup(User user, Long groupId, GroupUpdateRequest request) {
         Group group = groupRepository.findById(groupId).orElseThrow(() ->
                 new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
@@ -57,11 +47,22 @@ public class GroupService {
         }
 
         if (group.getGroupMembers().size() > request.maxMember()) {
-            throw new RuntimeException("그룹 모집 인원은 현재 그룹원의 수보다 적을 수 없습니다!"); // 커스텀 에러로 수정
+            throw new RuntimeException("그룹 모집 인원은 현재 그룹원의 수보다 적을 수 없습니다!");
         }
 
-        group.updateGroup(request.groupTitle(), request.groupPassword(), extractCategory(request.groupCategory()),
+        group.updateGroup(request.groupTitle(), request.groupPassword(), getCategoryByLabel(request.groupCategory()),
                 request.maxMember(), request.description());
+    }
+
+    public void deleteGroup(User user, Long groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
+            throw new RuntimeException("해당 그룹을 삭제할 권한이 없습니다!");
+        }
+
+        groupRepository.delete(group);
     }
 
     public void createGroupChatting(User user, Long groupId, GroupChattingCreateRequest request) {
@@ -87,13 +88,11 @@ public class GroupService {
         return groupChattingService.getGroupChatting(group, user);
     }
 
-    private Category extractCategory(String groupCategory) {
-        for (Category category : Category.values()) {
-            if (category.getLabel().equals(groupCategory)) {
-                return category;
-            }
-        }
-        throw new RuntimeException("카테고리 형식이 잘못됐습니다!");
+    private Category getCategoryByLabel(String label) {
+        return Arrays.stream(Category.values())
+                .filter(category -> category.getLabel().equals(label))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("카테고리 형식이 잘못됐습니다!"));
     }
 
 }

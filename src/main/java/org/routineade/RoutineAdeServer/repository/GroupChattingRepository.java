@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface GroupChattingRepository extends JpaRepository<GroupChatting, Long> {
 
     List<GroupChatting> findAllByGroup(Group group);
+
 }

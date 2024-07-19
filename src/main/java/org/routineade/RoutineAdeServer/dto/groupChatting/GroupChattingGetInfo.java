@@ -19,6 +19,6 @@ public record GroupChattingGetInfo(
         return new GroupChattingGetInfo(Objects.equals(groupChatting.getUser(), user),
                 groupChatting.getUser().getUserId(), groupChatting.getUser().getNickname(),
                 groupChatting.getUser().getProfileImage(), groupChatting.getContent(),
-                groupChatting.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 (E) a h:mm", KOREAN)));
+                groupChatting.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 (E)", KOREAN)));
     }
 }

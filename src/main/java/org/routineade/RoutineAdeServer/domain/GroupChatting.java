@@ -24,8 +24,11 @@ public class GroupChatting {
     @Column(nullable = false)
     private Long groupChattingId;
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "varchar(120)", nullable = false)
     private String content;
+
+    @Column(columnDefinition = "varchar(255)", nullable = false)
+    private String image;
 
     @Column(nullable = false)
     private LocalDate createdDate;
@@ -39,8 +42,9 @@ public class GroupChatting {
     private User user;
 
     @Builder
-    public GroupChatting(String content, Group group, User user) {
+    public GroupChatting(String content, String image, Group group, User user) {
         this.content = content;
+        this.image = image;
         this.createdDate = LocalDate.now();
         this.group = group;
         this.user = user;
