@@ -36,7 +36,7 @@ public class User {
     @Column(columnDefinition = "varchar(10)", nullable = false)
     private String nickname;
 
-    @Column(columnDefinition = "varchar(10)", nullable = false)
+    @Column(columnDefinition = "varchar(20)", nullable = false)
     private String intro;
 
     @Column(columnDefinition = "boolean default true", nullable = false)
