@@ -15,7 +15,7 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
-import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse_imsi;
 import org.routineade.RoutineAdeServer.service.RoutineService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +38,27 @@ public class RoutineController {
     private final RoutineService routineService;
     private final UserService userService;
 
+//    @Operation(summary = "루틴 조회", description = "사용자의 루틴을 조회하는 API")
+//    @Parameters({
+//            @Parameter(name = "routineDate", description = "조회할 날짜 (이 날에 수행해야 하는 루틴만 조회됨)", example = "2024.06.25")
+//    })
+//    @GetMapping
+//    public ResponseEntity<RoutinesGetResponse> getRoutines(Principal principal,
+//                                                           @RequestParam String routineDate) {
+//        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+//
+//        return ResponseEntity
+//                .status(OK)
+//                .body(routineService.getRoutines(user, routineDate));
+//    }
+
     @Operation(summary = "루틴 조회", description = "사용자의 루틴을 조회하는 API")
     @Parameters({
             @Parameter(name = "routineDate", description = "조회할 날짜 (이 날에 수행해야 하는 루틴만 조회됨)", example = "2024.06.25")
     })
     @GetMapping
-    public ResponseEntity<RoutinesGetResponse> getRoutines(Principal principal,
-                                                           @RequestParam String routineDate) {
+    public ResponseEntity<RoutinesGetResponse_imsi> getRoutines_imsi(Principal principal,
+                                                                     @RequestParam String routineDate) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
 
         return ResponseEntity
