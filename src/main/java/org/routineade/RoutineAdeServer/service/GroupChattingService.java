@@ -24,9 +24,12 @@ public class GroupChattingService {
     private final S3Service s3Service;
 
     public void createGroupChatting(Group group, User user, GroupChattingCreateRequest request) {
+        if (request.content() != null && request.image() != null) {
+            throw new RuntimeException("채팅은 글과 이미지 둘 중 하나만 등록할 수 있습니다!");
+        }
         GroupChatting groupChatting = GroupChatting.builder()
                 .content(request.content())
-                .image(saveAndGetImage(request.image()))
+                .image(request.image() == null ? null : saveAndGetImage(request.image()))
                 .group(group)
                 .user(user)
                 .build();

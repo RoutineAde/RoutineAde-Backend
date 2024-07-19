@@ -24,10 +24,10 @@ public class GroupChatting {
     @Column(nullable = false)
     private Long groupChattingId;
 
-    @Column(columnDefinition = "varchar(120)", nullable = false)
+    @Column(columnDefinition = "varchar(120)")
     private String content;
 
-    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Column(columnDefinition = "varchar(255)")
     private String image;
 
     @Column(nullable = false)

@@ -59,7 +59,7 @@ public class GroupController {
     @Operation(summary = "그룹 수정", description = "그룹을 수정하는 API")
     @Parameters({
             @Parameter(name = "groupTitle", description = "그룹명", example = "꿈을 향해"),
-            @Parameter(name = "groupPassword", description = "그룹 비밀번호 (없을 시 null)", example = "1234"),
+            @Parameter(name = "groupPassword", description = "그룹 비밀번호 (없을 시 null)", example = "null"),
             @Parameter(name = "groupCategory", description = "그룹 카테고리 (일상, 건강, 자기관리, 자기개발, 기타)", example = "건강"),
             @Parameter(name = "maxMember", description = "그룹 모집 인원수", example = "25"),
             @Parameter(name = "description", description = "그룹 소개", example = "그룹 소개입니당~")
