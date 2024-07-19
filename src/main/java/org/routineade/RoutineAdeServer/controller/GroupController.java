@@ -66,8 +66,8 @@ public class GroupController {
     })
     @PutMapping("/{groupId}")
     public ResponseEntity<Void> updateGroup(Principal principal,
-                                            @PathVariable(value = "groupId") Long groupId,
-                                            @RequestBody @Valid GroupUpdateRequest request) {
+                                            @PathVariable("groupId") Long groupId,
+                                            @Valid @RequestBody GroupUpdateRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         groupService.updateGroup(user, groupId, request);
 
@@ -82,7 +82,7 @@ public class GroupController {
     })
     @DeleteMapping("/{groupId}")
     public ResponseEntity<Void> deleteGroup(Principal principal,
-                                            @PathVariable(value = "groupId") Long groupId) {
+                                            @PathVariable("groupId") Long groupId) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         groupService.deleteGroup(user, groupId);
 
@@ -99,7 +99,7 @@ public class GroupController {
     })
     @PostMapping("/{groupId}/chatting")
     public ResponseEntity<Void> createGroupChatting(Principal principal,
-                                                    @PathVariable(value = "groupId") Long groupId,
+                                                    @PathVariable("groupId") Long groupId,
                                                     @Valid @RequestBody GroupChattingCreateRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         groupService.createGroupChatting(user, groupId, request);
@@ -115,7 +115,7 @@ public class GroupController {
     })
     @GetMapping("/{groupId}/chatting")
     public ResponseEntity<GroupChattingGetResponse> getGroupChatting(Principal principal,
-                                                                     @PathVariable(value = "groupId") Long groupId) {
+                                                                     @PathVariable("groupId") Long groupId) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
 
         return ResponseEntity
