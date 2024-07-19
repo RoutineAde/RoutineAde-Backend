@@ -7,7 +7,6 @@ import org.routineade.RoutineAdeServer.config.S3Service;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupChatting;
 import org.routineade.RoutineAdeServer.domain.User;
-import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetInfo;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupChattingRepository;
@@ -23,13 +22,13 @@ public class GroupChattingService {
     private final GroupChattingRepository groupChattingRepository;
     private final S3Service s3Service;
 
-    public void createGroupChatting(Group group, User user, GroupChattingCreateRequest request) {
-        if (request.content() != null && request.image() != null) {
+    public void createGroupChatting(Group group, User user, String content, MultipartFile image) {
+        if (content != null && image != null) {
             throw new RuntimeException("채팅은 글과 이미지 둘 중 하나만 등록할 수 있습니다!");
         }
         GroupChatting groupChatting = GroupChatting.builder()
-                .content(request.content())
-                .image(request.image() == null ? null : saveAndGetImage(request.image()))
+                .content(content)
+                .image(image == null ? null : saveAndGetImage(image))
                 .group(group)
                 .user(user)
                 .build();

@@ -8,11 +8,11 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
-import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +65,7 @@ public class GroupService {
         groupRepository.delete(group);
     }
 
-    public void createGroupChatting(User user, Long groupId, GroupChattingCreateRequest request) {
+    public void createGroupChatting(User user, Long groupId, String content, MultipartFile image) {
         Group group = groupRepository.findById(groupId).orElseThrow(() ->
                 new RuntimeException("해당 ID의 그룹이 존재하지 않습니다."));
 
@@ -73,7 +73,7 @@ public class GroupService {
             throw new RuntimeException("해당 그룹에 채팅을 생성할 권한이 없습니다!");
         }
 
-        groupChattingService.createGroupChatting(group, user, request);
+        groupChattingService.createGroupChatting(group, user, content, image);
     }
 
     @Transactional(readOnly = true)

@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
-import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
@@ -26,7 +25,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "그룹 API", description = "그룹 관련 API")
 @RestController
@@ -100,9 +101,10 @@ public class GroupController {
     @PostMapping("/{groupId}/chatting")
     public ResponseEntity<Void> createGroupChatting(Principal principal,
                                                     @PathVariable("groupId") Long groupId,
-                                                    @Valid @RequestBody GroupChattingCreateRequest request) {
+                                                    @RequestPart String content,
+                                                    @RequestPart MultipartFile image) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        groupService.createGroupChatting(user, groupId, request);
+        groupService.createGroupChatting(user, groupId, content, image);
 
         return ResponseEntity
                 .status(CREATED)
