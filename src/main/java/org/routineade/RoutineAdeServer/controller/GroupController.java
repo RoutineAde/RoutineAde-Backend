@@ -19,6 +19,7 @@ import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetRespons
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +41,7 @@ public class GroupController {
     @Parameters({
             @Parameter(name = "groupTitle", description = "그룹명", example = "꿈을 향해"),
             @Parameter(name = "groupPassword", description = "그룹 비밀번호 (없을 시 null)", example = "1234"),
-            @Parameter(name = "groupCategory", description = "그룹 카테고리 (daily, health, care, self_improvement, other)", example = "health"),
+            @Parameter(name = "groupCategory", description = "그룹 카테고리 (일상, 건강, 자기관리, 자기개발, 기타)", example = "건강"),
             @Parameter(name = "maxMember", description = "그룹 모집 인원수", example = "25"),
             @Parameter(name = "description", description = "그룹 소개", example = "그룹 소개입니당~")
     })
@@ -59,7 +60,7 @@ public class GroupController {
     @Parameters({
             @Parameter(name = "groupTitle", description = "그룹명", example = "꿈을 향해"),
             @Parameter(name = "groupPassword", description = "그룹 비밀번호 (없을 시 null)", example = "1234"),
-            @Parameter(name = "groupCategory", description = "그룹 카테고리 (daily, health, care, self_improvement, other)", example = "health"),
+            @Parameter(name = "groupCategory", description = "그룹 카테고리 (일상, 건강, 자기관리, 자기개발, 기타)", example = "건강"),
             @Parameter(name = "maxMember", description = "그룹 모집 인원수", example = "25"),
             @Parameter(name = "description", description = "그룹 소개", example = "그룹 소개입니당~")
     })
@@ -79,7 +80,7 @@ public class GroupController {
     @Parameters({
             @Parameter(name = "groupId", description = "삭제할 그룹 ID", example = "1")
     })
-    @PostMapping("/{groupId}")
+    @DeleteMapping("/{groupId}")
     public ResponseEntity<Void> deleteGroup(Principal principal,
                                             @PathVariable(value = "groupId") Long groupId) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
