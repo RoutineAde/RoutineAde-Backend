@@ -30,10 +30,6 @@ public class S3Service {
         }
     }
 
-    public void deleteFileFromS3(final String fileName) {
-        S3Client.deleteObject(bucket, fileName);
-    }
-
     public URL getFileURLFromS3(final String fileName) {
         return S3Client.getUrl(bucket, fileName);
     }
