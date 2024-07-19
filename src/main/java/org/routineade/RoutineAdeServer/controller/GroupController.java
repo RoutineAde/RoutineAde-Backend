@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "그룹 API", description = "그룹 관련 API")
 @RestController
-@RequestMapping("/group")
+@RequestMapping("/groups")
 @RequiredArgsConstructor
 public class GroupController {
 
