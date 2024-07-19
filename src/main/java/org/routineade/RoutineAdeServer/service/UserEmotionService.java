@@ -36,7 +36,7 @@ public class UserEmotionService {
 
         UserEmotion userEmotion = UserEmotion.builder()
                 .user(user)
-                .emotion(request.emotion())
+                .emotion(request.userEmotion())
                 .createdDate(date)
                 .build();
 
