@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
@@ -125,6 +126,16 @@ public class GroupController {
         return ResponseEntity
                 .status(OK)
                 .body(groupService.getGroupChatting(user, groupId));
+    }
+
+    @Operation(summary = "내 그룹 조회", description = "로그인 한 유저의 그룹을 조회하는 API")
+    @GetMapping("/my")
+    public ResponseEntity<UserGroupsGetResponse> getUserGroups(Principal principal) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(groupService.getUserGroups(user));
     }
 
 }

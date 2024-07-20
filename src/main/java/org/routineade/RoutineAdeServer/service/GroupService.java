@@ -1,13 +1,17 @@
 package org.routineade.RoutineAdeServer.service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Group;
+import org.routineade.RoutineAdeServer.domain.GroupMember;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
+import org.routineade.RoutineAdeServer.dto.group.GroupInfo;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberService groupMemberService;
     private final GroupChattingService groupChattingService;
+    private final UserService userService;
 
     public void createGroup(User user, GroupCreateRequest request) {
         Group group = Group.builder()
@@ -86,6 +91,15 @@ public class GroupService {
         }
 
         return groupChattingService.getGroupChatting(group, user);
+    }
+
+    public UserGroupsGetResponse getUserGroups(User user) {
+        List<GroupInfo> groupInfos = user.getGroupMembers().stream().map(GroupMember::getGroup)
+                .map(g -> GroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
+                        groupMemberService.getJoinDate(g, user)))
+                .toList();
+
+        return UserGroupsGetResponse.of(groupInfos);
     }
 
     private Category getCategoryByLabel(String label) {
