@@ -47,7 +47,7 @@ public class UserController {
     @Operation(summary = "유저 감정 등록", description = "사용자가 특정 날짜에 감정을 등록하는 API")
     @Parameters({
             @Parameter(name = "date", description = "감정을 등록할 날짜", example = "2024.06.25"),
-            @Parameter(name = "emotion", description = "등록할 감정 (GOOD, OK, SAD, ANGRY 중 하나)", example = "GOOD")
+            @Parameter(name = "userEmotion", description = "등록할 감정 (GOOD, OK, SAD, ANGRY 중 하나)", example = "GOOD")
     })
     @PostMapping("/emotion")
     public ResponseEntity<Void> createUserEmotion(Principal principal,
