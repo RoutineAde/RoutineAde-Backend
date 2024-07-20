@@ -3,6 +3,8 @@ package org.routineade.RoutineAdeServer.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -98,7 +100,7 @@ public class GroupController {
             @Parameter(name = "content", description = "채팅 내용", example = "오늘 루틴 모두 완료했습니다^^"),
             @Parameter(name = "image", description = "채팅 첨부 이미지")
     })
-    @PostMapping("/{groupId}/chatting")
+    @PostMapping(value = "/{groupId}/chatting", consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createGroupChatting(Principal principal,
                                                     @PathVariable("groupId") Long groupId,
                                                     @RequestPart(required = false) String content,
