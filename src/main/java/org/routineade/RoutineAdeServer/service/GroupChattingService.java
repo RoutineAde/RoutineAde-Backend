@@ -24,10 +24,10 @@ public class GroupChattingService {
 
     public void createGroupChatting(Group group, User user, String content, MultipartFile image) {
         if (content != null && image != null) {
-            throw new RuntimeException("채팅은 글과 이미지 둘 중 하나만 등록할 수 있습니다!");
+            throw new IllegalArgumentException("채팅은 글과 이미지 둘 중 하나만 등록할 수 있습니다!");
         }
         if (content == null && image == null) {
-            throw new RuntimeException("채팅은 글과 이미지 둘 중 하나는 등록해야 합니다!");
+            throw new IllegalArgumentException("채팅은 글과 이미지 둘 중 하나는 등록해야 합니다!");
         }
 
         GroupChatting groupChatting = GroupChatting.builder()

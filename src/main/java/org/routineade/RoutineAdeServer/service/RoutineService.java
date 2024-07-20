@@ -141,7 +141,7 @@ public class RoutineService {
     public void createRoutine(User user, RoutineCreateRequest request) {
         LocalDate startDate = LocalDate.parse(request.startDate(), DATE_FORMATTER);
         if (startDate.isBefore(LocalDate.now())) {
-            throw new RuntimeException("루틴 시작일은 과거일 수 없습니다!");
+            throw new IllegalArgumentException("루틴 시작일은 과거일 수 없습니다!");
         }
 
         Routine routine = Routine.builder()
@@ -161,11 +161,11 @@ public class RoutineService {
         Routine routine = getRoutineOrException(routineId);
 
         if (!routine.getCreatedUserId().equals(user.getUserId())) {
-            throw new RuntimeException("자신의 루틴만 수정할 수 있습니다!");
+            throw new IllegalArgumentException("자신의 루틴만 수정할 수 있습니다!");
         }
 
         if (!routine.getIsPersonal()) {
-            throw new RuntimeException("개인 루틴만 수정할 수 있습니다!");
+            throw new IllegalArgumentException("개인 루틴만 수정할 수 있습니다!");
         }
 
         routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
@@ -178,11 +178,11 @@ public class RoutineService {
         Routine routine = getRoutineOrException(routineId);
 
         if (!routine.getCreatedUserId().equals(user.getUserId())) {
-            throw new RuntimeException("자신의 루틴만 삭제할 수 있습니다!");
+            throw new IllegalArgumentException("자신의 루틴만 삭제할 수 있습니다!");
         }
 
         if (!routine.getIsPersonal()) {
-            throw new RuntimeException("개인 루틴만 삭제할 수 있습니다!");
+            throw new IllegalArgumentException("개인 루틴만 삭제할 수 있습니다!");
         }
 
         routineRepository.delete(routine);
@@ -194,12 +194,12 @@ public class RoutineService {
         LocalDate routineDate = LocalDate.parse(request.date(), DATE_FORMATTER);
 
         if (routineDate.isAfter(LocalDate.now())) {
-            throw new RuntimeException("미래의 루틴을 완료할 수 없습니다!");
+            throw new IllegalArgumentException("미래의 루틴을 완료할 수 없습니다!");
         }
 
         if (!routine.getIsPersonal()) { // 그룹 루틴인가?
             if (!groupRoutineService.userIsGroupIn(routine, user)) {
-                throw new RuntimeException("유저가 해당 루틴이 있는 그룹의 멤버가 아닙니다!");
+                throw new IllegalArgumentException("유저가 해당 루틴이 있는 그룹의 멤버가 아닙니다!");
             }
         }
         completionRoutineService.setCompletionRoutineStatus(user, routine, routineDate);
@@ -207,14 +207,14 @@ public class RoutineService {
 
     public Routine getRoutineOrException(Long routineId) {
         return routineRepository.findById(routineId).orElseThrow(() ->
-                new RuntimeException("해당 ID를 가진 루틴이 없습니다."));
+                new IllegalArgumentException("해당 ID를 가진 루틴이 없습니다."));
     }
 
     private Category getCategoryByLabel(String label) {
         return Arrays.stream(Category.values())
                 .filter(category -> category.getLabel().equals(label))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("카테고리 형식이 잘못됐습니다!"));
+                .orElseThrow(() -> new IllegalArgumentException("카테고리 형식이 잘못됐습니다!"));
     }
 
 }

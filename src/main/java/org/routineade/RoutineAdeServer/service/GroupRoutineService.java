@@ -28,6 +28,6 @@ public class GroupRoutineService {
 
     private GroupRoutine getGroupRoutineOrException(Routine routine) {
         return groupRoutineRepository.findByRoutine(routine)
-                .orElseThrow(() -> new RuntimeException("해당 루틴이 속한 그룹을 찾을 수 없습니다!"));
+                .orElseThrow(() -> new IllegalArgumentException("해당 루틴이 속한 그룹을 찾을 수 없습니다!"));
     }
 }
