@@ -101,8 +101,8 @@ public class GroupController {
     @PostMapping("/{groupId}/chatting")
     public ResponseEntity<Void> createGroupChatting(Principal principal,
                                                     @PathVariable("groupId") Long groupId,
-                                                    @RequestPart String content,
-                                                    @RequestPart MultipartFile image) {
+                                                    @RequestPart(required = false) String content,
+                                                    @RequestPart(required = false) MultipartFile image) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         groupService.createGroupChatting(user, groupId, content, image);
 

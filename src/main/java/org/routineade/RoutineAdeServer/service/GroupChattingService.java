@@ -26,6 +26,10 @@ public class GroupChattingService {
         if (content != null && image != null) {
             throw new RuntimeException("채팅은 글과 이미지 둘 중 하나만 등록할 수 있습니다!");
         }
+        if (content == null && image == null) {
+            throw new RuntimeException("채팅은 글과 이미지 둘 중 하나는 등록해야 합니다!");
+        }
+
         GroupChatting groupChatting = GroupChatting.builder()
                 .content(content)
                 .image(image == null ? null : saveAndGetImage(image))
