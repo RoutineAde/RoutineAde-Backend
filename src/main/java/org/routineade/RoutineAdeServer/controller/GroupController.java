@@ -151,4 +151,16 @@ public class GroupController {
                 .body(groupService.getGroups(user, request));
     }
 
+    @Operation(summary = "그룹 가입", description = "그룹에 가입하는 API")
+    @PostMapping("/{groupId}/join")
+    public ResponseEntity<Void> joinGroup(Principal principal,
+                                          @PathVariable Long groupId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.joinGroup(user, groupId);
+
+        return ResponseEntity
+                .status(CREATED)
+                .build();
+    }
+
 }

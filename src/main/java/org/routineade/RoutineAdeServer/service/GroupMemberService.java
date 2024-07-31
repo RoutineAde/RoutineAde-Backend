@@ -27,14 +27,27 @@ public class GroupMemberService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isNotMember(Group group, User user) {
-        return !groupMemberRepository.existsByGroupAndUser(group, user);
+    public boolean isMember(Group group, User user) {
+        return groupMemberRepository.existsByGroupAndUser(group, user);
     }
 
     @Transactional(readOnly = true)
     public Integer getJoinDate(Group group, User user) {
         GroupMember groupMember = getGroupMemberOrException(group, user);
         return (int) Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), groupMember.getGroupJoinDate())) + 1;
+    }
+
+    public void joinGroup(Group group, User user) {
+        if (isMember(group, user)) {
+            throw new IllegalArgumentException("해당 유저가 이미 해당 그룹에 가입되어 있습니다!");
+        }
+
+        groupMemberRepository.save(
+                GroupMember.builder()
+                        .group(group)
+                        .user(user)
+                        .build()
+        );
     }
 
     private GroupMember getGroupMemberOrException(Group group, User user) {

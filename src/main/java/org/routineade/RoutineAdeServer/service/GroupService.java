@@ -78,7 +78,7 @@ public class GroupService {
         Group group = groupRepository.findById(groupId).orElseThrow(() ->
                 new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
 
-        if (groupMemberService.isNotMember(group, user)) {
+        if (!groupMemberService.isMember(group, user)) {
             throw new IllegalArgumentException("해당 그룹에 채팅을 생성할 권한이 없습니다!");
         }
 
@@ -90,13 +90,14 @@ public class GroupService {
         Group group = groupRepository.findById(groupId).orElseThrow(() ->
                 new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
 
-        if (groupMemberService.isNotMember(group, user)) {
+        if (!groupMemberService.isMember(group, user)) {
             throw new IllegalArgumentException("해당 그룹의 채팅을 조회할 권한이 없습니다!");
         }
 
         return groupChattingService.getGroupChatting(group, user);
     }
 
+    @Transactional(readOnly = true)
     public UserGroupsGetResponse getUserGroups(User user) {
         List<UserGroupInfo> userGroupInfos = user.getGroupMembers().stream().map(GroupMember::getGroup)
                 .map(g -> UserGroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
@@ -106,6 +107,7 @@ public class GroupService {
         return UserGroupsGetResponse.of(userGroupInfos);
     }
 
+    @Transactional(readOnly = true)
     public GroupsGetResponse getGroups(User user, GroupsGetRequest request) {
         List<Group> groups = new ArrayList<>();
 
@@ -130,6 +132,13 @@ public class GroupService {
         return GroupsGetResponse.of(groups.stream()
                 .map(g -> GroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname()))
                 .toList());
+    }
+
+    public void joinGroup(User user, Long groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        groupMemberService.joinGroup(group, user);
     }
 
     private Category getCategoryByLabel(String label) {
