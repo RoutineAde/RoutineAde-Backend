@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +12,9 @@ import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupInfo;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.group.GroupsGetRequest;
+import org.routineade.RoutineAdeServer.dto.group.GroupsGetResponse;
+import org.routineade.RoutineAdeServer.dto.group.UserGroupInfo;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
@@ -94,15 +98,44 @@ public class GroupService {
     }
 
     public UserGroupsGetResponse getUserGroups(User user) {
-        List<GroupInfo> groupInfos = user.getGroupMembers().stream().map(GroupMember::getGroup)
-                .map(g -> GroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
+        List<UserGroupInfo> userGroupInfos = user.getGroupMembers().stream().map(GroupMember::getGroup)
+                .map(g -> UserGroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
                         groupMemberService.getJoinDate(g, user)))
                 .toList();
 
-        return UserGroupsGetResponse.of(groupInfos);
+        return UserGroupsGetResponse.of(userGroupInfos);
+    }
+
+    public GroupsGetResponse getGroups(User user, GroupsGetRequest request) {
+        List<Group> groups = new ArrayList<>();
+
+        if (request.groupCode() != null) {
+            if (request.groupCategory() != null && !request.groupCategory().equals("전체")) {
+                throw new IllegalArgumentException("그룹 코드로 검색 시 카테고리는 전체 또는 null 이어야 합니다!");
+            }
+            groupRepository.findById(request.groupCode()).ifPresent(groups::add);
+
+        } else if (request.keyword() != null) {
+            if (request.groupCategory() != null && !request.groupCategory().equals("전체")) {
+                throw new IllegalArgumentException("그룹 제목으로 검색 시 카테고리는 전체 또는 null 이어야 합니다!");
+            }
+            groups.addAll(groupRepository.findByKeyword(request.keyword()));
+
+        } else {
+
+            groups.addAll(groupRepository.findByGroupCategory(getCategoryByLabel(request.groupCategory())));
+
+        }
+
+        return GroupsGetResponse.of(groups.stream()
+                .map(g -> GroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname()))
+                .toList());
     }
 
     private Category getCategoryByLabel(String label) {
+        if (label.equals("전체")) {
+            return null;
+        }
         return Arrays.stream(Category.values())
                 .filter(category -> category.getLabel().equals(label))
                 .findFirst()

@@ -9,14 +9,14 @@ public record GroupInfo(
         String createdUserNickname,
         Integer maxMemberCount,
         Integer joinMemberCount,
-        Integer joinDate,
-        Boolean isPublic
+        Boolean isPublic,
+        String groupPassword
 ) {
 
-    public static GroupInfo of(Group group, String createdUserNickname, Integer joinDate) {
+    public static GroupInfo of(Group group, String createdUserNickname) {
         return new GroupInfo(group.getGroupId(), group.getGroupTitle(), group.getGroupCategory().getLabel(),
-                createdUserNickname, group.getMaxMember(), group.getGroupMembers().size(), joinDate,
-                group.getIsPublic());
+                createdUserNickname, group.getMaxMember(), group.getGroupMembers().size(), group.getIsPublic(),
+                group.getGroupPassword());
     }
-    
+
 }
