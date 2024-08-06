@@ -190,4 +190,17 @@ public class GroupController {
                 .body(groupService.getGroup(user, groupId));
     }
 
+    @Operation(summary = "그룹 탈퇴", description = "그룹을 탈퇴하는 API")
+    @Parameter(name = "groupId", description = "탈퇴할 그룹 ID", example = "1")
+    @DeleteMapping("/{groupId}/un-join")
+    public ResponseEntity<Void> unJoinGroup(Principal principal,
+                                            @PathVariable Long groupId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.unJoinGroup(user, groupId);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
+    }
+
 }

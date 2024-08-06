@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupMember;
 import org.routineade.RoutineAdeServer.domain.GroupRoutine;
@@ -39,6 +40,7 @@ public class GroupService {
     private final GroupMemberService groupMemberService;
     private final GroupChattingService groupChattingService;
     private final UserService userService;
+    private final CompletionRoutineService completionRoutineService;
 
     public void createGroup(User user, GroupCreateRequest request) {
         Group group = Group.builder()
@@ -148,6 +150,19 @@ public class GroupService {
                 new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
 
         groupMemberService.joinGroup(group, user);
+    }
+
+    public void unJoinGroup(User user, Long groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        groupMemberService.unJoinGroup(group, user);
+
+        List<Routine> groupRoutines = group.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
+        List<Routine> completionGroupRoutines = user.getCompletionRoutines().stream().map(CompletionRoutine::getRoutine)
+                .filter(groupRoutines::contains).toList();
+
+        completionRoutineService.deleteCompletionRoutines(user, completionGroupRoutines);
     }
 
     @Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package org.routineade.RoutineAdeServer.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
@@ -33,6 +34,10 @@ public class CompletionRoutineService {
     @Transactional(readOnly = true)
     public Boolean getIsCompletionRoutine(User user, Routine routine, LocalDate date) {
         return completionRoutineRepository.existsByUserAndRoutineAndCompletionDate(user, routine, date);
+    }
+
+    public void deleteCompletionRoutines(User user, List<Routine> completionRoutines) {
+        completionRoutineRepository.deleteByUserAndRoutines(user, completionRoutines);
     }
 
 }
