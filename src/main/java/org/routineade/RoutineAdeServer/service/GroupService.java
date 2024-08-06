@@ -2,6 +2,7 @@ package org.routineade.RoutineAdeServer.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -98,7 +99,10 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     public UserGroupsGetResponse getUserGroups(User user) {
-        List<UserGroupInfo> userGroupInfos = user.getGroupMembers().stream().map(GroupMember::getGroup)
+        List<UserGroupInfo> userGroupInfos = user.getGroupMembers()
+                .stream()
+                .sorted(Comparator.comparing(GroupMember::getGroupJoinDate).reversed())
+                .map(GroupMember::getGroup)
                 .map(g -> UserGroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
                         groupMemberService.getJoinDate(g, user)))
                 .toList();

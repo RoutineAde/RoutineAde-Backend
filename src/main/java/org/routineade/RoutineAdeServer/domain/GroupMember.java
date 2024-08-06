@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class GroupMember {
     private Boolean isGroupAlarmEnabled;
 
     @Column(nullable = false)
-    private LocalDate groupJoinDate;
+    private LocalDateTime groupJoinDate;
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
@@ -43,9 +43,9 @@ public class GroupMember {
     @Builder
     public GroupMember(Boolean isGroupAlarmEnabled, Group group, User user) {
         this.isGroupAlarmEnabled = isGroupAlarmEnabled;
-        this.groupJoinDate = LocalDate.now();
+        this.groupJoinDate = LocalDateTime.now();
         this.group = group;
         this.user = user;
     }
-    
+
 }
