@@ -172,7 +172,13 @@ public class GroupController {
                 .build();
     }
 
-    @Operation(summary = "그룹 기본 정보 조회", description = "그룹의 기본 정보(그룹 루틴, 그룹 정보, 그룹원 등)를 조회하는 API")
+    @Operation(summary = "그룹 기본 정보 조회", description = "그룹의 기본 정보를 조회하는 API \n\n"
+            + "<조회되는 정보> \n\n"
+            + "로그인 유저의 그룹장 여부(isGroupAdmin), \n\n"
+            + "로그인 유저의 그룹 알림 여부(isGroupAlarmEnabled), \n\n"
+            + "그룹 정보(groupInfo), \n\n"
+            + "그룹원 정보(groupMembers), \n\n"
+            + "그룹 루틴(groupRoutines)")
     @Parameter(name = "groupId", description = "조회할 그룹 ID", example = "1")
     @GetMapping("/{groupId}")
     public ResponseEntity<GroupGetResponse> getGroup(Principal principal,
