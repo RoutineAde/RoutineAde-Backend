@@ -5,6 +5,7 @@ import org.routineade.RoutineAdeServer.domain.Group;
 public record GroupInfo(
         Long groupId,
         String groupTitle,
+        String description,
         String groupCategory,
         String createdUserNickname,
         Integer maxMemberCount,
@@ -14,9 +15,9 @@ public record GroupInfo(
 ) {
 
     public static GroupInfo of(Group group, String createdUserNickname) {
-        return new GroupInfo(group.getGroupId(), group.getGroupTitle(), group.getGroupCategory().getLabel(),
-                createdUserNickname, group.getMaxMember(), group.getGroupMembers().size(), group.getIsPublic(),
-                group.getGroupPassword());
+        return new GroupInfo(group.getGroupId(), group.getGroupTitle(), group.getDescription(),
+                group.getGroupCategory().getLabel(), createdUserNickname, group.getMaxMember(),
+                group.getGroupMembers().size(), group.getIsPublic(), group.getGroupPassword());
     }
 
 }
