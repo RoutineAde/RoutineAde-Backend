@@ -50,6 +50,12 @@ public class GroupMemberService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public Boolean isUserGroupAlarmEnabled(User user, Group group) {
+        GroupMember groupMember = getGroupMemberOrException(group, user);
+        return groupMember.getIsGroupAlarmEnabled();
+    }
+
     private GroupMember getGroupMemberOrException(Group group, User user) {
         return groupMemberRepository.findByGroupAndUser(group, user)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 해당 그룹의 멤버가 아닙니다!"));

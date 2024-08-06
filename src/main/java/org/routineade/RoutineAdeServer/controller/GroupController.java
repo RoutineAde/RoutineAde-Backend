@@ -15,6 +15,7 @@ import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
+import org.routineade.RoutineAdeServer.dto.group.GroupGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
@@ -169,6 +170,18 @@ public class GroupController {
         return ResponseEntity
                 .status(CREATED)
                 .build();
+    }
+
+    @Operation(summary = "그룹 기본 정보 조회", description = "그룹의 기본 정보(그룹 루틴, 그룹 정보, 그룹원 등)를 조회하는 API")
+    @Parameter(name = "groupId", description = "조회할 그룹 ID", example = "1")
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GroupGetResponse> getGroup(Principal principal,
+                                                     @PathVariable Long groupId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(groupService.getGroup(user, groupId));
     }
 
 }

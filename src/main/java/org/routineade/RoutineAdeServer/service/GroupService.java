@@ -5,13 +5,21 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupMember;
+import org.routineade.RoutineAdeServer.domain.GroupRoutine;
+import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
+import org.routineade.RoutineAdeServer.dto.group.GroupGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.GroupInfo;
+import org.routineade.RoutineAdeServer.dto.group.GroupMemberInfo;
+import org.routineade.RoutineAdeServer.dto.group.GroupRoutineCategory;
+import org.routineade.RoutineAdeServer.dto.group.GroupRoutineDetail;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupInfo;
@@ -140,6 +148,59 @@ public class GroupService {
                 new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
 
         groupMemberService.joinGroup(group, user);
+    }
+
+    @Transactional(readOnly = true)
+    public GroupGetResponse getGroup(User user, Long groupId) {
+        // 그룹을 찾거나 예외 발생
+        Group group = groupRepository.findById(groupId).orElseThrow(() ->
+                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        // 그룹 접근 권한 확인
+        if (!groupMemberService.isMember(group, user)) {
+            throw new IllegalArgumentException("해당 그룹에 접근할 권한이 없습니다!");
+        }
+
+        // 그룹장 여부 확인
+        Boolean isGroupAdmin = Objects.equals(group.getCreatedUserId(), user.getUserId());
+
+        // 그룹 정보 생성
+        GroupInfo groupInfo = GroupInfo.of(group,
+                userService.getUserOrException(group.getCreatedUserId()).getNickname());
+
+        // 그룹 알림 설정 상태 확인
+        Boolean isGroupAlarmEnabled = groupMemberService.isUserGroupAlarmEnabled(user, group);
+
+        // 그룹원 정보 생성
+        List<GroupMemberInfo> groupMemberInfo = group.getGroupMembers().stream()
+                .map(GroupMember::getUser)
+                .map(GroupMemberInfo::of)
+                .collect(Collectors.toList());
+
+        // 그룹 루틴 및 카테고리 정보 생성
+        List<GroupRoutineCategory> groupRoutineCategories = createGroupRoutineCategories(
+                group.getGroupRoutines().stream().map(GroupRoutine::getRoutine).collect(
+                        Collectors.toSet())).stream().filter(grc -> !grc.routines().isEmpty()).toList();
+
+        // GroupGetResponse 생성 및 반환
+        return GroupGetResponse.of(isGroupAdmin, isGroupAlarmEnabled, groupInfo, groupMemberInfo,
+                groupRoutineCategories);
+    }
+
+    private List<GroupRoutineCategory> createGroupRoutineCategories(Set<Routine> routines) {
+        return Arrays.stream(Category.values())
+                .map(category -> GroupRoutineCategory.of(
+                        category.getLabel(),
+                        routines.stream()
+                                .filter(gr -> gr.getRoutineCategory().equals(category))
+                                .map(r -> GroupRoutineDetail.of(
+                                        r,
+                                        r.getRoutineRepeatDays().stream()
+                                                .map(rd -> rd.getRepeatDay().getLabel())
+                                                .collect(Collectors.toList())))
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
 
     private Category getCategoryByLabel(String label) {
