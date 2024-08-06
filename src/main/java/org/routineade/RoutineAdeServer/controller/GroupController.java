@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
-import org.routineade.RoutineAdeServer.dto.group.GroupsGetRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -141,17 +141,25 @@ public class GroupController {
     }
 
     @Operation(summary = "그룹 조회", description = "전체 그룹을 조회하는 API")
+    @Parameters({
+            @Parameter(name = "groupCategory", description = "조회할 그룹 카테고리 (전체, 일상, 건강, 자기관리, 자기개발, 기타, null)", example = "전체"),
+            @Parameter(name = "groupCode", description = "조회할 그룹 코드 (없을 시 null)", example = "1"),
+            @Parameter(name = "keyword", description = "그룹 제목 검색어 (없을 시 null)", example = "갓생러")
+    })
     @GetMapping
     public ResponseEntity<GroupsGetResponse> getGroups(Principal principal,
-                                                       @RequestBody GroupsGetRequest request) {
+                                                       @RequestParam(required = false) String groupCategory,
+                                                       @RequestParam(required = false) Long groupCode,
+                                                       @RequestParam(required = false) String keyword) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
 
         return ResponseEntity
                 .status(OK)
-                .body(groupService.getGroups(user, request));
+                .body(groupService.getGroups(user, groupCategory, groupCode, keyword));
     }
 
     @Operation(summary = "그룹 가입", description = "그룹에 가입하는 API")
+    @Parameter(name = "groupId", description = "가입할 그룹 ID", example = "1")
     @PostMapping("/{groupId}/join")
     public ResponseEntity<Void> joinGroup(Principal principal,
                                           @PathVariable Long groupId) {
