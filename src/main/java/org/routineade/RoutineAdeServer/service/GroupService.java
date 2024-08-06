@@ -119,20 +119,18 @@ public class GroupService {
                 throw new IllegalArgumentException("그룹 코드로 검색 시 카테고리는 전체 또는 null 이어야 합니다!");
             }
             groupRepository.findById(groupCode).ifPresent(groups::add);
-
         } else if (keyword != null) {
             if (groupCategory != null && !groupCategory.equals("전체")) {
                 throw new IllegalArgumentException("그룹 제목으로 검색 시 카테고리는 전체 또는 null 이어야 합니다!");
             }
             groups.addAll(groupRepository.findByKeyword(keyword));
-
         } else {
-
             groups.addAll(groupRepository.findByGroupCategory(getCategoryByLabel(groupCategory)));
-
         }
 
-        return GroupsGetResponse.of(groups.stream()
+        return GroupsGetResponse.of(groups
+                .stream()
+                .sorted(Comparator.comparing(Group::getGroupId).reversed())
                 .map(g -> GroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname()))
                 .toList());
     }
