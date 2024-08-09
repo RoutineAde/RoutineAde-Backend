@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.auth.AuthenticationException;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupMember;
@@ -147,9 +148,18 @@ public class GroupService {
                 .toList());
     }
 
-    public void joinGroup(User user, Long groupId) {
+    public void joinGroup(User user, Long groupId, String password) throws AuthenticationException {
         Group group = groupRepository.findById(groupId).orElseThrow(() ->
                 new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+
+        if (!group.getIsPublic()) {
+            if (password == null || password.isBlank()) {
+                throw new IllegalArgumentException("비공개 그룹은 비밀번호를 입력해야 합니다!");
+            }
+            if (!group.getGroupPassword().equals(password)) {
+                throw new AuthenticationException("그룹 비밀번호가 틀렸습니다.");
+            }
+        }
 
         groupMemberService.joinGroup(group, user);
     }

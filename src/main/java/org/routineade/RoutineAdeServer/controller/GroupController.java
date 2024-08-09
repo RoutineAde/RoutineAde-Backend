@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.auth.AuthenticationException;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupGetResponse;
@@ -163,9 +164,11 @@ public class GroupController {
     @Parameter(name = "groupId", description = "가입할 그룹 ID", example = "1")
     @PostMapping("/{groupId}/join")
     public ResponseEntity<Void> joinGroup(Principal principal,
-                                          @PathVariable Long groupId) {
+                                          @PathVariable Long groupId,
+                                          @RequestParam(required = false) String password)
+            throws AuthenticationException {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        groupService.joinGroup(user, groupId);
+        groupService.joinGroup(user, groupId, password);
 
         return ResponseEntity
                 .status(CREATED)
