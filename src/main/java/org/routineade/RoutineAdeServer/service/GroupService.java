@@ -15,6 +15,7 @@ import org.routineade.RoutineAdeServer.domain.GroupRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
+import org.routineade.RoutineAdeServer.dto.group.GroupBasicInfo;
 import org.routineade.RoutineAdeServer.dto.group.GroupCreateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.GroupInfo;
@@ -141,7 +142,8 @@ public class GroupService {
         return GroupsGetResponse.of(groups
                 .stream()
                 .sorted(Comparator.comparing(Group::getGroupId).reversed())
-                .map(g -> GroupInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname()))
+                .map(g -> GroupBasicInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
+                        groupMemberService.isMember(g, user)))
                 .toList());
     }
 
