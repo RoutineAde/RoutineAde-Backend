@@ -15,6 +15,7 @@ import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
+import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
@@ -169,10 +170,11 @@ public class RoutineService {
             throw new IllegalArgumentException("개인 루틴만 수정할 수 있습니다!");
         }
 
-        routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
-
-        routine.update(request.routineTitle(), getCategoryByLabel(request.routineCategory()), request.isAlarmEnabled(),
+        routine.updateByPersonal(request.routineTitle(), getCategoryByLabel(request.routineCategory()),
+                request.isAlarmEnabled(),
                 LocalDate.parse(request.startDate(), DATE_FORMATTER));
+
+        routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
     }
 
     public void deleteRoutine(User user, Long routineId) {
@@ -226,6 +228,18 @@ public class RoutineService {
         routineRepeatDayService.createRoutineRepeatDay(routine, request.repeatDays());
 
         groupRoutineService.recordGroupRoutine(group, routine);
+    }
+
+    public void updateGroupRoutine(Group group, Long routineId, GroupRoutineUpdateRequest request) {
+        Routine routine = getRoutineOrException(routineId);
+
+        if (!groupRoutineService.isGroupRoutine(group, routine)) {
+            throw new IllegalArgumentException("해당 루틴이 해당 그룹의 루틴이 아닙니다!");
+        }
+
+        routine.updateByPublic(request.routineTitle(), getCategoryByLabel(request.routineCategory()));
+
+        routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
     }
 
     private Category getCategoryByLabel(String label) {

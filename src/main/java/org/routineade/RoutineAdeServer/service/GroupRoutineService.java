@@ -37,6 +37,11 @@ public class GroupRoutineService {
         groupRoutineRepository.save(groupRoutine);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isGroupRoutine(Group group, Routine routine) {
+        return groupRoutineRepository.existsByGroupAndRoutine(group, routine);
+    }
+
     private GroupRoutine getGroupRoutineOrException(Routine routine) {
         return groupRoutineRepository.findByRoutine(routine)
                 .orElseThrow(() -> new IllegalArgumentException("해당 루틴이 속한 그룹을 찾을 수 없습니다!"));

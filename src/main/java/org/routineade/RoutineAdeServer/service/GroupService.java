@@ -29,6 +29,7 @@ import org.routineade.RoutineAdeServer.dto.group.UserGroupInfo;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
+import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -217,6 +218,16 @@ public class GroupService {
         }
 
         routineService.createGroupRoutine(user, group, request);
+    }
+
+    public void updateGroupRoutine(User user, Long groupId, Long routineId, GroupRoutineUpdateRequest request) {
+        Group group = getGroupOrThrowException(groupId);
+
+        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
+            throw new IllegalArgumentException("그룹 루틴은 루틴장만이 수정할 수 있습니다!");
+        }
+
+        routineService.updateGroupRoutine(group, routineId, request);
     }
 
     private Group getGroupOrThrowException(Long groupId) {
