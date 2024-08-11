@@ -28,6 +28,7 @@ import org.routineade.RoutineAdeServer.dto.group.GroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupInfo;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
+import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,7 @@ public class GroupService {
     private final GroupChattingService groupChattingService;
     private final UserService userService;
     private final CompletionRoutineService completionRoutineService;
+    private final RoutineService routineService;
 
     public void createGroup(User user, GroupCreateRequest request) {
         Group group = Group.builder()
@@ -60,8 +62,7 @@ public class GroupService {
     }
 
     public void updateGroup(User user, Long groupId, GroupUpdateRequest request) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
             throw new IllegalArgumentException("해당 그룹을 수정할 권한이 없습니다!");
@@ -76,8 +77,7 @@ public class GroupService {
     }
 
     public void deleteGroup(User user, Long groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
             throw new IllegalArgumentException("해당 그룹을 삭제할 권한이 없습니다!");
@@ -87,8 +87,7 @@ public class GroupService {
     }
 
     public void createGroupChatting(User user, Long groupId, String content, MultipartFile image) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         if (!groupMemberService.isMember(group, user)) {
             throw new IllegalArgumentException("해당 그룹에 채팅을 생성할 권한이 없습니다!");
@@ -99,8 +98,7 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     public GroupChattingGetResponse getGroupChatting(User user, Long groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         if (!groupMemberService.isMember(group, user)) {
             throw new IllegalArgumentException("해당 그룹의 채팅을 조회할 권한이 없습니다!");
@@ -149,8 +147,7 @@ public class GroupService {
     }
 
     public void joinGroup(User user, Long groupId, String password) throws AuthenticationException {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         if (!group.getIsPublic()) {
             if (password == null || password.isBlank()) {
@@ -165,8 +162,7 @@ public class GroupService {
     }
 
     public void unJoinGroup(User user, Long groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         groupMemberService.unJoinGroup(group, user);
 
@@ -180,8 +176,7 @@ public class GroupService {
     @Transactional(readOnly = true)
     public GroupGetResponse getGroup(User user, Long groupId) {
         // 그룹을 찾거나 예외 발생
-        Group group = groupRepository.findById(groupId).orElseThrow(() ->
-                new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+        Group group = getGroupOrThrowException(groupId);
 
         // 그룹 접근 권한 확인
         if (!groupMemberService.isMember(group, user)) {
@@ -212,6 +207,21 @@ public class GroupService {
         // GroupGetResponse 생성 및 반환
         return GroupGetResponse.of(isGroupAdmin, isGroupAlarmEnabled, groupInfo, groupMemberInfo,
                 groupRoutineCategories);
+    }
+
+    public void createGroupRoutine(User user, Long groupId, GroupRoutineCreateRequest request) {
+        Group group = getGroupOrThrowException(groupId);
+
+        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
+            throw new IllegalArgumentException("그룹 루틴은 루틴장만이 등록할 수 있습니다!");
+        }
+
+        routineService.createGroupRoutine(user, group, request);
+    }
+
+    private Group getGroupOrThrowException(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
     }
 
     private List<GroupRoutineCategory> createGroupRoutineCategories(Set<Routine> routines) {

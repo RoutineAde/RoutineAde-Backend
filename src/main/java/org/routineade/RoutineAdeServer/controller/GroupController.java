@@ -21,6 +21,7 @@ import org.routineade.RoutineAdeServer.dto.group.GroupUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.group.GroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
+import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -203,6 +204,25 @@ public class GroupController {
 
         return ResponseEntity
                 .status(NO_CONTENT)
+                .build();
+    }
+
+    @Operation(summary = "그룹 루틴 생성", description = "그룹에 루틴을 생성하는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "루틴 생성할 그룹 ID", example = "1"),
+            @Parameter(name = "routineTitle", description = "그룹 루틴명", example = "하루 30분 운동하기"),
+            @Parameter(name = "routineCategory", description = "그룹 루틴 카테고리 (일상, 건강, 자기관리, 자기개발, 기타 중 하나)", example = "건강"),
+            @Parameter(name = "repeatDays", description = "그룹 루틴 반복 요일 (월, 화, 수, 목, 금, 토, 일 중 한 개 이상)", example = "[\"월\", \"수\", \"일\"]")
+    })
+    @PostMapping("/{groupId}/group-routines")
+    public ResponseEntity<Void> createGroupRoutine(Principal principal,
+                                                   @PathVariable Long groupId,
+                                                   @RequestBody GroupRoutineCreateRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.createGroupRoutine(user, groupId, request);
+
+        return ResponseEntity
+                .status(OK)
                 .build();
     }
 

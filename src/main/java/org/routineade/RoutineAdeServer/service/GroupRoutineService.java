@@ -2,6 +2,7 @@ package org.routineade.RoutineAdeServer.service;
 
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupMember;
 import org.routineade.RoutineAdeServer.domain.GroupRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
@@ -17,6 +18,7 @@ public class GroupRoutineService {
 
     private final GroupRoutineRepository groupRoutineRepository;
 
+    @Transactional(readOnly = true)
     public boolean userIsGroupIn(Routine routine, User user) {
         GroupRoutine groupRoutine = getGroupRoutineOrException(routine);
 
@@ -24,6 +26,15 @@ public class GroupRoutineService {
                 .map(GroupMember::getUser)
                 .collect(Collectors.toSet())
                 .contains(user);
+    }
+
+    public void recordGroupRoutine(Group group, Routine routine) {
+        GroupRoutine groupRoutine = GroupRoutine.builder()
+                .group(group)
+                .routine(routine)
+                .build();
+
+        groupRoutineRepository.save(groupRoutine);
     }
 
     private GroupRoutine getGroupRoutineOrException(Routine routine) {

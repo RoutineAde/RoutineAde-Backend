@@ -14,6 +14,7 @@ import org.routineade.RoutineAdeServer.domain.GroupRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
+import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
@@ -208,6 +209,23 @@ public class RoutineService {
     public Routine getRoutineOrException(Long routineId) {
         return routineRepository.findById(routineId).orElseThrow(() ->
                 new IllegalArgumentException("해당 ID를 가진 루틴이 없습니다."));
+    }
+
+    public void createGroupRoutine(User user, Group group, GroupRoutineCreateRequest request) {
+        Routine routine = Routine.builder()
+                .createdUserId(user.getUserId())
+                .routineTitle(request.routineTitle())
+                .routineCategory(getCategoryByLabel(request.routineCategory()))
+                .isAlarmEnabled(true)
+                .isPersonal(false)
+                .startDate(LocalDate.now())
+                .build();
+
+        routineRepository.save(routine);
+
+        routineRepeatDayService.createRoutineRepeatDay(routine, request.repeatDays());
+
+        groupRoutineService.recordGroupRoutine(group, routine);
     }
 
     private Category getCategoryByLabel(String label) {
