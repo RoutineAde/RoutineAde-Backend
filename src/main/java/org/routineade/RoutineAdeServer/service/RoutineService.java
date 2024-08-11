@@ -242,6 +242,16 @@ public class RoutineService {
         routineRepeatDayService.updateRoutineRepeatDay(routine, request.repeatDays());
     }
 
+    public void deleteGroupRoutine(Group group, Long routineId) {
+        Routine routine = getRoutineOrException(routineId);
+
+        if (!groupRoutineService.isGroupRoutine(group, routine)) {
+            throw new IllegalArgumentException("해당 루틴이 해당 그룹의 루틴이 아닙니다!");
+        }
+
+        routineRepository.delete(routine);
+    }
+
     private Category getCategoryByLabel(String label) {
         return Arrays.stream(Category.values())
                 .filter(category -> category.getLabel().equals(label))

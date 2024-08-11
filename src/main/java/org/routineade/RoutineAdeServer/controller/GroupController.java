@@ -230,6 +230,7 @@ public class GroupController {
     @Operation(summary = "그룹 루틴 수정", description = "그룹 루틴을 수정하는 API")
     @Parameters({
             @Parameter(name = "groupId", description = "루틴 수정할 그룹 ID", example = "1"),
+            @Parameter(name = "routineId", description = "수정할 루틴 ID", example = "35"),
             @Parameter(name = "routineTitle", description = "그룹 루틴명", example = "하루 30분 운동하기"),
             @Parameter(name = "routineCategory", description = "그룹 루틴 카테고리 (일상, 건강, 자기관리, 자기개발, 기타 중 하나)", example = "건강"),
             @Parameter(name = "repeatDays", description = "그룹 루틴 반복 요일 (월, 화, 수, 목, 금, 토, 일 중 한 개 이상)", example = "[\"월\", \"수\", \"일\"]")
@@ -241,6 +242,23 @@ public class GroupController {
                                                    @RequestBody GroupRoutineUpdateRequest request) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         groupService.updateGroupRoutine(user, groupId, routineId, request);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
+    }
+
+    @Operation(summary = "그룹 루틴 삭제", description = "그룹 루틴을 삭제하는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "루틴 삭제할 그룹 ID", example = "1"),
+            @Parameter(name = "routineId", description = "삭제할 루틴 ID", example = "35")
+    })
+    @DeleteMapping("/{groupId}/group-routines/{routineId}")
+    public ResponseEntity<Void> deleteGroupRoutine(Principal principal,
+                                                   @PathVariable Long groupId,
+                                                   @PathVariable Long routineId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.deleteGroupRoutine(user, groupId, routineId);
 
         return ResponseEntity
                 .status(NO_CONTENT)

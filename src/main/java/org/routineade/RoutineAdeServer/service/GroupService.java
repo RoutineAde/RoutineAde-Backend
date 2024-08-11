@@ -230,6 +230,16 @@ public class GroupService {
         routineService.updateGroupRoutine(group, routineId, request);
     }
 
+    public void deleteGroupRoutine(User user, Long groupId, Long routineId) {
+        Group group = getGroupOrThrowException(groupId);
+
+        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
+            throw new IllegalArgumentException("그룹 루틴은 루틴장만이 삭제할 수 있습니다!");
+        }
+
+        routineService.deleteGroupRoutine(group, routineId);
+    }
+
     private Group getGroupOrThrowException(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
