@@ -54,7 +54,7 @@ public class GroupMemberService {
         if (!isMember(group, user)) {
             throw new IllegalArgumentException("해당 유저가 해당 그룹에 가입되어 있지 않습니다!");
         }
-        groupMemberRepository.delete(getGroupMemberOrException(group, user));
+        groupMemberRepository.deleteByGroupAndUser(group, user);
     }
 
     @Transactional(readOnly = true)

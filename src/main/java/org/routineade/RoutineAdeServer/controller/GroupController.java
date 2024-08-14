@@ -265,4 +265,21 @@ public class GroupController {
                 .build();
     }
 
+    @Operation(summary = "루틴원 내보내기", description = "루틴장이 루틴원을 강퇴시키는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "그룹 ID", example = "1"),
+            @Parameter(name = "userId", description = "강퇴할 루틴원 ID", example = "2")
+    })
+    @DeleteMapping("/{groupId}/members/{userId}")
+    public ResponseEntity<Void> removeGroupMember(Principal principal,
+                                                  @PathVariable Long groupId,
+                                                  @PathVariable Long userId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.removeGroupMember(user, groupId, userId);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
+    }
+
 }
