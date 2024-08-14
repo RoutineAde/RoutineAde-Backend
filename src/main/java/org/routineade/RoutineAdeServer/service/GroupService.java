@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.auth.AuthenticationException;
+import org.routineade.RoutineAdeServer.domain.BanGroupMember;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupMember;
@@ -30,6 +31,7 @@ import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
+import org.routineade.RoutineAdeServer.repository.BanGroupMemberRepository;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +48,7 @@ public class GroupService {
     private final UserService userService;
     private final CompletionRoutineService completionRoutineService;
     private final RoutineService routineService;
+    private final BanGroupMemberRepository banGroupMemberRepository;
 
     public void createGroup(User user, GroupCreateRequest request) {
         Group group = Group.builder()
@@ -150,6 +153,10 @@ public class GroupService {
     public void joinGroup(User user, Long groupId, String password) throws AuthenticationException {
         Group group = getGroupOrThrowException(groupId);
 
+        if (banGroupMemberRepository.existsByGroupAndUser(group, user)) {
+            throw new IllegalStateException("그룹에 가입할 수 없습니다.");
+        }
+
         if (!group.getIsPublic()) {
             if (password == null || password.isBlank()) {
                 throw new IllegalArgumentException("비공개 그룹은 비밀번호를 입력해야 합니다!");
@@ -241,11 +248,20 @@ public class GroupService {
     }
 
     public void removeGroupMember(User user, Long groupId, Long userId) {
-        if (!Objects.equals(getGroupOrThrowException(groupId).getCreatedUserId(), user.getUserId())) {
+        Group group = getGroupOrThrowException(groupId);
+        if (!Objects.equals(group.getCreatedUserId(), user.getUserId())) {
             throw new IllegalArgumentException("루틴장만이 루틴원을 내보낼 수 있습니다!");
         }
 
-        unJoinGroup(userService.getUserOrException(userId), groupId);
+        User banUser = userService.getUserOrException(userId);
+        unJoinGroup(banUser, groupId);
+
+        banGroupMemberRepository.save(
+                BanGroupMember.builder()
+                        .group(group)
+                        .user(banUser)
+                        .build()
+        );
     }
 
     private Group getGroupOrThrowException(Long groupId) {

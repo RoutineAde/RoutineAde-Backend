@@ -61,6 +61,9 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = ALL)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "group", cascade = ALL)
+    private List<BanGroupMember> banGroupMembers = new ArrayList<>();
+
     @Builder
     public Group(String groupTitle, Boolean isPublic, String groupPassword, Category groupCategory, Integer maxMember,
                  String description, Long createdUserId) {
@@ -82,5 +85,5 @@ public class Group {
         this.maxMember = maxMember;
         this.description = description;
     }
-    
+
 }

@@ -49,6 +49,9 @@ public class User {
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = ALL)
+    private List<BanGroupMember> banGroupMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = ALL)
     private List<CompletionRoutine> completionRoutines = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = ALL)

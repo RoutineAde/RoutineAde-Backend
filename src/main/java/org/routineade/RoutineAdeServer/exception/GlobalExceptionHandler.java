@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.exception;
 
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -26,6 +27,14 @@ public class GlobalExceptionHandler {
         log.error("[AuthenticationException] exception ", e);
         return ResponseEntity
                 .status(UNAUTHORIZED)
+                .body(ErrorResult.of("에러 : " + e.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResult> AuthenticationExceptionHandler(IllegalStateException e) {
+        log.error("[IllegalStateException] exception ", e);
+        return ResponseEntity
+                .status(FORBIDDEN)
                 .body(ErrorResult.of("에러 : " + e.getMessage()));
     }
 
