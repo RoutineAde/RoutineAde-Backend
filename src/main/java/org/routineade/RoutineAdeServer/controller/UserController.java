@@ -12,7 +12,8 @@ import java.security.Principal;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
-import org.routineade.RoutineAdeServer.dto.userEmotion.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -60,12 +61,14 @@ public class UserController {
                 .build();
     }
 
-    @Operation(summary = "서버 상태 체크", description = "서버가 정상적으로 작동중인지 확인하는 API")
-    @GetMapping("/health")
-    public ResponseEntity<String> check() {
+    @Operation(summary = "유저 월간 카테고리별 루틴 통계 조회", description = "사용자의 월간 카테고리별 루틴 통계를 조회하는 API")
+    @GetMapping("/statistics")
+    public ResponseEntity<UserRoutineCategoryStatisticsGetResponse> getUserStatistics(Principal principal) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
         return ResponseEntity
                 .status(OK)
-                .body("서버 호출 성공!");
+                .body(userService.getUserStatistics(user));
     }
 
 }
