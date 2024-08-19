@@ -1,4 +1,4 @@
-package org.routineade.RoutineAdeServer.dto.userEmotion;
+package org.routineade.RoutineAdeServer.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

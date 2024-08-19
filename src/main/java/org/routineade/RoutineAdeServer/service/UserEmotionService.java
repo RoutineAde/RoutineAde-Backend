@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.UserEmotion;
-import org.routineade.RoutineAdeServer.dto.userEmotion.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.repository.UserEmotionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
