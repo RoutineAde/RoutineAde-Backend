@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "유저 API", description = "유저 관련 API")
@@ -62,13 +63,15 @@ public class UserController {
     }
 
     @Operation(summary = "유저 월간 카테고리별 루틴 통계 조회", description = "사용자의 월간 카테고리별 루틴 통계를 조회하는 API")
+    @Parameter(name = "date", description = "조회할 년월", example = "2024.09")
     @GetMapping("/statistics")
-    public ResponseEntity<UserRoutineCategoryStatisticsGetResponse> getUserStatistics(Principal principal) {
+    public ResponseEntity<UserRoutineCategoryStatisticsGetResponse> getUserStatistics(Principal principal,
+                                                                                      @RequestParam String date) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
 
         return ResponseEntity
                 .status(OK)
-                .body(userService.getUserStatistics(user));
+                .body(userService.getUserStatistics(user, date));
     }
 
 }

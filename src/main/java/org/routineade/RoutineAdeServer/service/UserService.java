@@ -1,5 +1,7 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +42,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserRoutineCategoryStatisticsGetResponse getUserStatistics(User user) {
-        List<Routine> completionRoutines = user.getCompletionRoutines().stream().map(CompletionRoutine::getRoutine)
+    public UserRoutineCategoryStatisticsGetResponse getUserStatistics(User user, String date) {
+        YearMonth yearMonth = YearMonth.parse(date, DateTimeFormatter.ofPattern("yyyy.MM"));
+
+        List<Routine> completionRoutines = user.getCompletionRoutines()
+                .stream()
+                .filter(cr -> YearMonth.from(cr.getCompletionDate()).equals(yearMonth))
+                .map(CompletionRoutine::getRoutine)
                 .toList();
 
         List<RoutineCategoryStatisticsInfo> routineCategoryStatisticsInfos = Arrays.stream(Category.values())
