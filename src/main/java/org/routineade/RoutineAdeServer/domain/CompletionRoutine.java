@@ -40,7 +40,6 @@ public class CompletionRoutine {
         this.completionDate = completionDate;
         this.routine = routine;
         this.user = user;
-        this.completionDate = LocalDate.now();
     }
 
 }
