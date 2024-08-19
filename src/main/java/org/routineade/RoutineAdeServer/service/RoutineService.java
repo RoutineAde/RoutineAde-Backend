@@ -1,5 +1,7 @@
 package org.routineade.RoutineAdeServer.service;
 
+import static java.util.Locale.KOREAN;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -196,15 +198,23 @@ public class RoutineService {
 
         LocalDate routineDate = LocalDate.parse(request.date(), DATE_FORMATTER);
 
-        if (routineDate.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("미래의 루틴을 완료할 수 없습니다!");
-        }
-
         if (!routine.getIsPersonal()) { // 그룹 루틴인가?
             if (!groupRoutineService.userIsGroupIn(routine, user)) {
                 throw new IllegalArgumentException("유저가 해당 루틴이 있는 그룹의 멤버가 아닙니다!");
             }
         }
+
+        if (routineDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("미래의 루틴을 완료할 수 없습니다!");
+        }
+
+        String day = routineDate.format(DateTimeFormatter.ofPattern("E", KOREAN));
+
+        if (routine.getRoutineRepeatDays().stream()
+                .noneMatch(routineRepeatDay -> routineRepeatDay.getRepeatDay().getLabel().equals(day))) {
+            throw new IllegalArgumentException("해당 날짜에 루틴이 반복되지 않습니다.");
+        }
+
         completionRoutineService.setCompletionRoutineStatus(user, routine, routineDate);
     }
 
