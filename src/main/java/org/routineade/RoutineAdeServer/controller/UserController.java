@@ -75,7 +75,7 @@ public class UserController {
                 .body(userService.getUserStatistics(user, date));
     }
 
-    @Operation(summary = "유저 월간 루틴 달성 통계 조회", description = "사용자의 월간 루틴 달성 통계를 조회하는 API")
+    @Operation(summary = "유저 월간 루틴 달성 캘린더 통계 조회", description = "사용자의 월간 루틴 달성 캘린더 통계를 조회하는 API")
     @Parameter(name = "date", description = "조회할 년월", example = "2024.09")
     @GetMapping("/statistics/calender")
     public ResponseEntity<UserRoutineCalenderStatisticsGetResponse> getUserCalenderStatistics(Principal principal,
