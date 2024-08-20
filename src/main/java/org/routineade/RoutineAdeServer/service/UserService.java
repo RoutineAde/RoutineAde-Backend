@@ -12,7 +12,9 @@ import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
+import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
+import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
 import org.routineade.RoutineAdeServer.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +67,22 @@ public class UserService {
         return UserRoutineCategoryStatisticsGetResponse.of(
                 completionRoutines.size(),
                 routineCategoryStatisticsInfos
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public UserRoutineCalenderStatisticsGetResponse getUserCalenderStatistics(User user, String date) {
+        YearMonth yearMonth = YearMonth.parse(date, DateTimeFormatter.ofPattern("yyyy.MM"));
+
+        List<CompletionRoutine> completionRoutines = user.getCompletionRoutines()
+                .stream()
+                .filter(cr -> YearMonth.from(cr.getCompletionDate()).equals(yearMonth))
+                .toList();
+
+        return UserRoutineCalenderStatisticsGetResponse.of(
+                completionRoutines.size(),
+                UserRoutineCompletionStatistics.of(routineService.getUserRoutineCompletionStatisticsByMonth(
+                        user, yearMonth, completionRoutines))
         );
     }
 

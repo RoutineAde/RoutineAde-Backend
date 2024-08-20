@@ -2,20 +2,27 @@ package org.routineade.RoutineAdeServer.service;
 
 import static java.util.Locale.KOREAN;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupMember;
 import org.routineade.RoutineAdeServer.domain.GroupRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
+import org.routineade.RoutineAdeServer.domain.common.RoutineCompletionLevel;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
@@ -26,6 +33,7 @@ import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse_v2;
+import org.routineade.RoutineAdeServer.dto.user.RoutineCompletionInfo;
 import org.routineade.RoutineAdeServer.repository.RoutineRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -260,6 +268,67 @@ public class RoutineService {
         }
 
         routineRepository.delete(routine);
+    }
+
+    public List<RoutineCompletionInfo> getUserRoutineCompletionStatisticsByMonth(User user, YearMonth yearMonth,
+                                                                                 List<CompletionRoutine> completionRoutines) {
+        // 유저가 완료한 월간 루틴 현황을 담음 <일자, 해당 일자에 완료한 루틴 갯수>
+        Map<Integer, Integer> completionRoutineStatistics = completionRoutines.stream()
+                .collect(Collectors.toMap(
+                        cr -> cr.getCompletionDate().getDayOfMonth(),
+                        cr -> 1,
+                        Integer::sum
+                ));
+
+        Map<Integer, Integer> routineStatistics = new HashMap<>(); // 유저의 월간 루틴 존재 현황을 담음 <일자, 해당 일자 루틴 갯수>
+
+        /*
+        해당 월, 해당 일에 수행 가능한 개인루틴, 그룹루틴 수 구하기
+         */
+        for (Integer day : completionRoutineStatistics.keySet()) {
+            LocalDate date = yearMonth.atDay(day);
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+            int routineCount = 0;
+
+            List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user,
+                    dayOfWeek);
+            for (Routine routine : personalRoutines) {
+                if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
+                    continue;
+                }
+
+                personalRoutines.remove(routine);
+            }
+
+            routineCount += personalRoutines.size();
+
+            for (GroupMember groupMember : user.getGroupMembers()) {
+                if (!groupMember.getGroupJoinDate().toLocalDate().isBefore(date) && !groupMember.getGroupJoinDate()
+                        .toLocalDate().isEqual(date)) {
+                    routineCount += routineRepeatDayService.filterRoutinesByDay(
+                            groupMember.getGroup().getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList(),
+                            dayOfWeek).size();
+                }
+            }
+
+            routineStatistics.put(day, routineCount);
+        }
+
+        // 루틴 완료 비율 계산 <일자, 완료 비율>
+        Map<Integer, Float> completionRatios = new HashMap<>();
+
+        for (Integer day : completionRoutineStatistics.keySet()) {
+            completionRatios.put(day, (float) completionRoutineStatistics.get(day) / routineStatistics.get(day));
+        }
+
+        return completionRatios.entrySet().stream()
+                .map(entry -> RoutineCompletionInfo.of(
+                        entry.getKey(),
+                        RoutineCompletionLevel.fromRate(entry.getValue()).getLevel()
+                ))
+                .sorted(Comparator.comparingInt(RoutineCompletionInfo::day)) // 날짜순 오름차순 정렬
+                .toList();
     }
 
     private Category getCategoryByLabel(String label) {

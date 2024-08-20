@@ -13,6 +13,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
@@ -72,6 +73,18 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(userService.getUserStatistics(user, date));
+    }
+
+    @Operation(summary = "유저 월간 루틴 달성 통계 조회", description = "사용자의 월간 루틴 달성 통계를 조회하는 API")
+    @Parameter(name = "date", description = "조회할 년월", example = "2024.09")
+    @GetMapping("/statistics/calender")
+    public ResponseEntity<UserRoutineCalenderStatisticsGetResponse> getUserCalenderStatistics(Principal principal,
+                                                                                              @RequestParam String date) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserCalenderStatistics(user, date));
     }
 
 }
