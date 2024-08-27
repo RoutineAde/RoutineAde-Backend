@@ -12,6 +12,7 @@ import java.security.Principal;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
@@ -19,6 +20,7 @@ import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -85,6 +87,19 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(userService.getUserCalenderStatistics(user, date));
+    }
+
+    @Operation(summary = "타유저 프로필 루틴 조회", description = "타유저의 프로필의 루틴을 조회하는 API")
+    @Parameter(name = "userId", description = "조회할 유저 ID", example = "1")
+    @GetMapping("/{userId}/routines")
+    public ResponseEntity<RoutinesByUserProfileGetResponse> getUserProfile(Principal principal,
+                                                                           @PathVariable Long userId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        User user1 = userService.getUserOrException(userId);
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserProfileRoutine(user1));
     }
 
 }

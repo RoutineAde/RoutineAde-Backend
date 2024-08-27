@@ -28,9 +28,11 @@ import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateReques
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse_v2;
 import org.routineade.RoutineAdeServer.dto.user.RoutineCompletionInfo;
@@ -147,6 +149,57 @@ public class RoutineService {
         }
 
         return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
+                userEmotionService.getUserEmotionByDate(user, date));
+    }
+
+    @Transactional(readOnly = true)
+    public RoutinesByUserProfileGetResponse getRoutinesByUserProfile(User user) {
+        LocalDate date = LocalDate.now();
+        List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user,
+                date.getDayOfWeek()); // 요일로 개인 루틴 구함
+
+        /*
+        개인 루틴
+         */
+        List<PersonalRoutineByUserProfileGetResponse> personalRoutineGetResponses = new ArrayList<>();
+        for (Routine routine : personalRoutines) {
+            if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
+                List<String> repeatDays = routine.getRoutineRepeatDays().stream()
+                        .map(rd -> rd.getRepeatDay().getLabel()).toList();
+
+                Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
+
+                personalRoutineGetResponses.add(PersonalRoutineByUserProfileGetResponse.of(
+                        routine, repeatDays, routine.getStartDate().format(DATE_FORMATTER), isCompletion
+                ));
+            }
+        }
+
+        /*
+        그룹 루틴
+         */
+        List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
+        Set<Group> userGroups = user.getGroupMembers().stream().map(GroupMember::getGroup).collect(Collectors.toSet());
+        for (Group userGroup : userGroups) {
+            if (!userGroup.getIsPublic()) {
+                continue;
+            }
+            List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
+            List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
+
+            if (filterRoutines.isEmpty()) {
+                continue;
+            }
+
+            List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
+                    .map(routine -> GroupRoutineInfo.of(routine,
+                            completionRoutineService.getIsCompletionRoutine(user, routine, date)))
+                    .toList();
+
+            groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
+        }
+
+        return RoutinesByUserProfileGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
                 userEmotionService.getUserEmotionByDate(user, date));
     }
 

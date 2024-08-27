@@ -12,6 +12,7 @@ import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
@@ -84,6 +85,11 @@ public class UserService {
                 UserRoutineCompletionStatistics.of(routineService.getUserRoutineCompletionStatisticsByMonth(
                         user, yearMonth, completionRoutines))
         );
+    }
+
+    @Transactional(readOnly = true)
+    public RoutinesByUserProfileGetResponse getUserProfileRoutine(User user) {
+        return routineService.getRoutinesByUserProfile(user);
     }
 
 }
