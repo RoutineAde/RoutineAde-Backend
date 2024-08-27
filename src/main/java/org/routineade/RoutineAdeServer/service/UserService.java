@@ -88,7 +88,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public RoutinesByUserProfileGetResponse getUserProfileRoutine(User user) {
+    public RoutinesByUserProfileGetResponse getUserProfileRoutines(User user) {
         return routineService.getRoutinesByUserProfile(user);
     }
 

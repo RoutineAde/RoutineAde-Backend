@@ -92,14 +92,48 @@ public class UserController {
     @Operation(summary = "타유저 프로필 루틴 조회", description = "타유저의 프로필의 루틴을 조회하는 API")
     @Parameter(name = "userId", description = "조회할 유저 ID", example = "1")
     @GetMapping("/{userId}/routines")
-    public ResponseEntity<RoutinesByUserProfileGetResponse> getUserProfile(Principal principal,
-                                                                           @PathVariable Long userId) {
-        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        User user1 = userService.getUserOrException(userId);
+    public ResponseEntity<RoutinesByUserProfileGetResponse> getUserProfileRoutines(Principal principal,
+                                                                                   @PathVariable Long userId) {
+        userService.getUserOrException(Long.valueOf(principal.getName()));
+        User targetUser = userService.getUserOrException(userId);
 
         return ResponseEntity
                 .status(OK)
-                .body(userService.getUserProfileRoutine(user1));
+                .body(userService.getUserProfileRoutines(targetUser));
+    }
+
+    @Operation(summary = "타유저 프로필 캘린더 통계 조회", description = "타유저 프로필의 캘린더 통계를 조회하는 API")
+    @Parameters({
+            @Parameter(name = "userId", description = "조회할 유저 ID", example = "1"),
+            @Parameter(name = "date", description = "조회할 년월", example = "2024.08")
+    })
+    @GetMapping("/{userId}/statistics/calender")
+    public ResponseEntity<UserRoutineCalenderStatisticsGetResponse> getUserProfileCalender(Principal principal,
+                                                                                           @PathVariable Long userId,
+                                                                                           @RequestParam String date) {
+        userService.getUserOrException(Long.valueOf(principal.getName()));
+        User targetUser = userService.getUserOrException(userId);
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserCalenderStatistics(targetUser, date));
+    }
+
+    @Operation(summary = "타유저 프로필 카테고리별 통계 조회", description = "타유저 프로필의 카테고리별 통계를 조회하는 API")
+    @Parameters({
+            @Parameter(name = "userId", description = "조회할 유저 ID", example = "1"),
+            @Parameter(name = "date", description = "조회할 년월", example = "2024.08")
+    })
+    @GetMapping("/{userId}/statistics")
+    public ResponseEntity<UserRoutineCategoryStatisticsGetResponse> getUserProfileStatistics(Principal principal,
+                                                                                             @PathVariable Long userId,
+                                                                                             @RequestParam String date) {
+        userService.getUserOrException(Long.valueOf(principal.getName()));
+        User targetUser = userService.getUserOrException(userId);
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserStatistics(targetUser, date));
     }
 
 }

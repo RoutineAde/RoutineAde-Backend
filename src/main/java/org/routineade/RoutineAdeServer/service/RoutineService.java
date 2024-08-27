@@ -199,7 +199,7 @@ public class RoutineService {
             groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
         }
 
-        return RoutinesByUserProfileGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
+        return RoutinesByUserProfileGetResponse.of(user, personalRoutineGetResponses, groupRoutinesGetResponses,
                 userEmotionService.getUserEmotionByDate(user, date));
     }
 
