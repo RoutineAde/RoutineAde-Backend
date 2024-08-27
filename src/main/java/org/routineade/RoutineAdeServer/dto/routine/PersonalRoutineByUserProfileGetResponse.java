@@ -8,12 +8,11 @@ public record PersonalRoutineByUserProfileGetResponse(
         String routineTitle,
         List<String> repeatDays,
         String routineCategory,
-        String startDate,
         Boolean isCompletion
 ) {
-    public static PersonalRoutineByUserProfileGetResponse of(Routine routine, List<String> repeatDays, String startDate,
+    public static PersonalRoutineByUserProfileGetResponse of(Routine routine, List<String> repeatDays,
                                                              Boolean isCompletion) {
         return new PersonalRoutineByUserProfileGetResponse(routine.getRoutineId(), routine.getRoutineTitle(),
-                repeatDays, routine.getRoutineCategory().getLabel(), startDate, isCompletion);
+                repeatDays, routine.getRoutineCategory().getLabel(), isCompletion);
     }
 }

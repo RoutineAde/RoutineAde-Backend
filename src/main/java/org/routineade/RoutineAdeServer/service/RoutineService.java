@@ -170,7 +170,7 @@ public class RoutineService {
                 Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
 
                 personalRoutineGetResponses.add(PersonalRoutineByUserProfileGetResponse.of(
-                        routine, repeatDays, routine.getStartDate().format(DATE_FORMATTER), isCompletion
+                        routine, repeatDays, isCompletion
                 ));
             }
         }
