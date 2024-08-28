@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class GroupChatting {
     private String image;
 
     @Column(nullable = false)
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
@@ -45,7 +45,7 @@ public class GroupChatting {
     public GroupChatting(String content, String image, Group group, User user) {
         this.content = content;
         this.image = image;
-        this.createdDate = LocalDate.now();
+        this.createdDate = LocalDateTime.now();
         this.group = group;
         this.user = user;
     }
