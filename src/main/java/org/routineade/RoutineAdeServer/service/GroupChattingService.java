@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,9 @@ public class GroupChattingService {
         List<GroupChatting> groupChattingList = groupChattingRepository.findAllByGroup(group);
 
         return GroupChattingGetResponse.of(
-                groupChattingList.stream().map(gc -> GroupChattingGetInfo.of(gc, user)).toList());
+                groupChattingList.stream()
+                        .sorted(Comparator.comparing(GroupChatting::getCreatedDate))
+                        .map(gc -> GroupChattingGetInfo.of(gc, user)).toList());
     }
 
     private String saveAndGetImage(MultipartFile image) {
