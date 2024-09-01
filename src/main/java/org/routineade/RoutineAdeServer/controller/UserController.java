@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserInfoCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.KakaoService;
@@ -56,6 +57,17 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(kakaoService.login(code));
+    }
+
+    @PostMapping("/infos")
+    public ResponseEntity<Void> createUserInfos(Principal principal,
+                                                @Valid @RequestBody UserInfoCreateRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        userService.createUserInfo(user, request);
+
+        return ResponseEntity
+                .status(CREATED)
+                .build();
     }
 
     @Operation(summary = "유저 감정 등록", description = "사용자가 특정 날짜에 감정을 등록하는 API")

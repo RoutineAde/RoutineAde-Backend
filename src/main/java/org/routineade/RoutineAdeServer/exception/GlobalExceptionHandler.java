@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResult> AuthenticationExceptionHandler(IllegalStateException e) {
+    public ResponseEntity<ErrorResult> IllegalStateExceptionHandler(IllegalStateException e) {
         log.error("[IllegalStateException] exception ", e);
         return ResponseEntity
                 .status(FORBIDDEN)

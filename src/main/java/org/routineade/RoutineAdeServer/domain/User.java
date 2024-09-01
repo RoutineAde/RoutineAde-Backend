@@ -36,7 +36,7 @@ public class User {
     @Column(columnDefinition = "varchar(10)", nullable = false)
     private String nickname;
 
-    @Column(columnDefinition = "varchar(20)", nullable = false)
+    @Column(columnDefinition = "varchar(20)")
     private String intro;
 
     @Column(columnDefinition = "boolean default true", nullable = false)
@@ -63,6 +63,12 @@ public class User {
     @Builder
     public User(String email, String profileImage, String nickname, String intro) {
         this.email = email;
+        this.profileImage = profileImage;
+        this.nickname = nickname;
+        this.intro = intro;
+    }
+
+    public void updateInfo(String profileImage, String nickname, String intro) {
         this.profileImage = profileImage;
         this.nickname = nickname;
         this.intro = intro;
