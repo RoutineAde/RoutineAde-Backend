@@ -28,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RoutineService routineService;
+    private static final String BASIC_PROFILE_IMAGE = "기본 프로필 이미지";
 
     @Transactional(readOnly = true)
     public User getUserOrException(Long userId) {
@@ -42,6 +43,23 @@ public class UserService {
         UserAuthentication userAuthentication = new UserAuthentication(user.getUserId(), null, null);
 
         return jwtProvider.generateToken(userAuthentication);
+    }
+
+    public Long getOrCreateUser(String email, String profileImage) {
+        User user;
+        if (!userRepository.existsByEmail(email)) {
+            User newUser = User.builder()
+                    .email(email)
+                    .intro("한 줄 소개")
+                    .nickname("닉네임")
+                    .profileImage(profileImage == null ? BASIC_PROFILE_IMAGE : profileImage)
+                    .build();
+            user = userRepository.save(newUser);
+        } else {
+            user = userRepository.findByEmail(email).get();
+        }
+
+        return user.getUserId();
     }
 
     @Transactional(readOnly = true)

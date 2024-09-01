@@ -16,6 +16,7 @@ import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetRespo
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
+import org.routineade.RoutineAdeServer.service.KakaoService;
 import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserEmotionService userEmotionService;
+    private final KakaoService kakaoService;
 
     @Operation(summary = "로그인", description = "로그인하여 인증용 토큰을 조회하는 API")
     @Parameters({
@@ -47,6 +49,13 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(Map.of("Authentication", token));
+    }
+
+    @GetMapping("/login/kakao")
+    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
+        return ResponseEntity
+                .status(OK)
+                .body(kakaoService.login(code));
     }
 
     @Operation(summary = "유저 감정 등록", description = "사용자가 특정 날짜에 감정을 등록하는 API")

@@ -29,7 +29,9 @@ public class SecurityConfig {
             "/",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "users/health"
+            "users/health",
+            "/users/login/kakao",
+            "/v2/user/me"
     };
 
     @Bean
