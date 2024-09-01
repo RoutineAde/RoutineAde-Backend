@@ -52,6 +52,7 @@ public class UserController {
                 .body(Map.of("Authentication", token));
     }
 
+    @Operation(summary = "로그인", description = "로그인하여 인증용 토큰을 조회하는 API", hidden = true)
     @GetMapping("/login/kakao")
     public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
         return ResponseEntity
@@ -59,6 +60,12 @@ public class UserController {
                 .body(kakaoService.login(code));
     }
 
+    @Operation(summary = "유저 기본 정보 등록", description = "사용자가 첫 가입 시 기본 정보를 등록하는 API")
+    @Parameters({
+            @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 링크"),
+            @Parameter(name = "nickname", description = "닉네임", example = "참치마요"),
+            @Parameter(name = "intro", description = "소개글", example = "안녕하세요~! (null 가능)")
+    })
     @PostMapping("/infos")
     public ResponseEntity<Void> createUserInfos(Principal principal,
                                                 @Valid @RequestBody UserInfoCreateRequest request) {
