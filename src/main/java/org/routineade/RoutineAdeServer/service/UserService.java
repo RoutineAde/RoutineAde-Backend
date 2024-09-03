@@ -29,7 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RoutineService routineService;
-    private static final String BASIC_PROFILE_IMAGE = "기본 프로필 이미지";
+    private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/Basic_Pofile.png";
 
     @Transactional(readOnly = true)
     public User getUserOrException(Long userId) {
