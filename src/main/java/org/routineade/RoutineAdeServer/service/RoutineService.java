@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -344,14 +345,17 @@ public class RoutineService {
 
             int routineCount = 0;
 
-            List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user,
-                    dayOfWeek);
-            for (Routine routine : personalRoutines) {
+            List<Routine> personalRoutines = new ArrayList<>(
+                    routineRepeatDayService.getPersonalRoutinesByDay(user, dayOfWeek));
+            Iterator<Routine> iterator = personalRoutines.iterator();
+
+            while (iterator.hasNext()) {
+                Routine routine = iterator.next();
                 if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
                     continue;
                 }
 
-                personalRoutines.remove(routine);
+                iterator.remove();
             }
 
             routineCount += personalRoutines.size();
