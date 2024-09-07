@@ -1,6 +1,7 @@
 package org.routineade.RoutineAdeServer.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,8 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserInfoCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
+import org.routineade.RoutineAdeServer.dto.user.UserProfileUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.KakaoService;
@@ -24,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -162,6 +166,33 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(userService.getUserStatistics(targetUser, date));
+    }
+
+    @Operation(summary = "유저 내정보 조회", description = "유저가 자신의 내정보를 조회하는 API")
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileGetResponse> getUserProfile(Principal principal) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserProfile(user));
+    }
+
+    @Operation(summary = "유저 내정보 수정", description = "유저가 자신의 내정보를 수정하는 API")
+    @Parameters({
+            @Parameter(name = "profileImage", description = "프로필 이미지", example = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/2023021814122527217_2.jpg"),
+            @Parameter(name = "nickname", description = "닉네임(중복x)", example = "행복하자"),
+            @Parameter(name = "intro", description = "소개글(nullable)", example = "잘 부탁 드립니다 ^^")
+    })
+    @PutMapping("/profile")
+    public ResponseEntity<Void> getUserProfile(Principal principal,
+                                               @Valid @RequestBody UserProfileUpdateRequest request) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        userService.updateUserProfile(user, request);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
     }
 
 }

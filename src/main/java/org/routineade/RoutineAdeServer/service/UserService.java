@@ -14,6 +14,8 @@ import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserInfoCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
+import org.routineade.RoutineAdeServer.dto.user.UserProfileUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
@@ -116,6 +118,18 @@ public class UserService {
     @Transactional(readOnly = true)
     public RoutinesByUserProfileGetResponse getUserProfileRoutines(User user) {
         return routineService.getRoutinesByUserProfile(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileGetResponse getUserProfile(User user) {
+        return UserProfileGetResponse.of(user);
+    }
+
+    public void updateUserProfile(User user, UserProfileUpdateRequest request) {
+        if (userRepository.existsByNickname(request.nickname())) {
+            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+        }
+        user.updateInfo(request.profileImage(), request.nickname(), request.intro());
     }
 
 }
