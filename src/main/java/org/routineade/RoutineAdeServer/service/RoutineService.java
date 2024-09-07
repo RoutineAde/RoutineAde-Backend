@@ -27,9 +27,12 @@ import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateReques
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesCategoryInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineByUserProfileGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineByUserProfileInfo;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
@@ -60,21 +63,8 @@ public class RoutineService {
         /*
         개인 루틴
          */
-        List<PersonalRoutineGetResponse> personalRoutineGetResponses = new ArrayList<>();
-        for (Routine routine : personalRoutines) {
-            if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
-                List<String> repeatDays = routine.getRoutineRepeatDays().stream()
-                        .map(rd -> rd.getRepeatDay().getLabel()).toList();
-
-                Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
-
-                personalRoutineGetResponses.add(PersonalRoutineGetResponse.of(
-                        routine, repeatDays, routine.getStartDate().format(DATE_FORMATTER), isCompletion
-                ));
-            }
-        }
-
-        return personalRoutineGetResponses;
+        return createPersonalRoutineCategories(user,
+                personalRoutines, date).stream().filter(rc -> !rc.routines().isEmpty()).toList();
     }
 
     @Transactional(readOnly = true)
@@ -86,19 +76,8 @@ public class RoutineService {
         /*
         개인 루틴
          */
-        List<PersonalRoutineGetResponse> personalRoutineGetResponses = new ArrayList<>();
-        for (Routine routine : personalRoutines) {
-            if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
-                List<String> repeatDays = routine.getRoutineRepeatDays().stream()
-                        .map(rd -> rd.getRepeatDay().getLabel()).toList();
-
-                Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
-
-                personalRoutineGetResponses.add(PersonalRoutineGetResponse.of(
-                        routine, repeatDays, routine.getStartDate().format(DATE_FORMATTER), isCompletion
-                ));
-            }
-        }
+        List<PersonalRoutineGetResponse> personalRoutineGetResponses = createPersonalRoutineCategories(user,
+                personalRoutines, date).stream().filter(rc -> !rc.routines().isEmpty()).toList();
 
         return RoutinesGetResponse_v2.of(personalRoutineGetResponses,
                 userEmotionService.getUserEmotionByDate(user, date));
@@ -113,41 +92,27 @@ public class RoutineService {
         /*
         개인 루틴
          */
-        List<PersonalRoutineGetResponse> personalRoutineGetResponses = new ArrayList<>();
-        for (Routine routine : personalRoutines) {
-            if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
-                List<String> repeatDays = routine.getRoutineRepeatDays().stream()
-                        .map(rd -> rd.getRepeatDay().getLabel()).toList();
-
-                Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
-
-                personalRoutineGetResponses.add(PersonalRoutineGetResponse.of(
-                        routine, repeatDays, routine.getStartDate().format(DATE_FORMATTER), isCompletion
-                ));
-            }
-        }
+        List<PersonalRoutineGetResponse> personalRoutineGetResponses = createPersonalRoutineCategories(user,
+                personalRoutines, date).stream().filter(rc -> !rc.routines().isEmpty()).toList();
+        ;
 
         /*
         그룹 루틴
          */
         List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
-        List<GroupMember> groupMembers = user.getGroupMembers();
-        for (GroupMember groupMember : groupMembers) {
-            Boolean isAlarmEnabled = groupMember.getIsGroupAlarmEnabled();
+
+        for (GroupMember groupMember : user.getGroupMembers()) {
             Group userGroup = groupMember.getGroup();
-            List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
-            List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
+            List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(
+                    userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList(), date.getDayOfWeek());
 
             if (filterRoutines.isEmpty()) {
                 continue;
             }
 
-            List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
-                    .map(routine -> GroupRoutineInfo.of(routine,
-                            completionRoutineService.getIsCompletionRoutine(user, routine, date), isAlarmEnabled))
-                    .toList();
-
-            groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
+            groupRoutinesGetResponses.add(
+                    GroupRoutinesGetResponse.of(userGroup, createGroupRoutineCategories(user, filterRoutines,
+                            date, groupMember.getIsGroupAlarmEnabled())));
         }
 
         return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
@@ -163,26 +128,15 @@ public class RoutineService {
         /*
         개인 루틴
          */
-        List<PersonalRoutineByUserProfileGetResponse> personalRoutineGetResponses = new ArrayList<>();
-        for (Routine routine : personalRoutines) {
-            if (routine.getStartDate().isBefore(date) || routine.getStartDate().isEqual(date)) {
-                List<String> repeatDays = routine.getRoutineRepeatDays().stream()
-                        .map(rd -> rd.getRepeatDay().getLabel()).toList();
-
-                Boolean isCompletion = completionRoutineService.getIsCompletionRoutine(user, routine, date);
-
-                personalRoutineGetResponses.add(PersonalRoutineByUserProfileGetResponse.of(
-                        routine, repeatDays, isCompletion
-                ));
-            }
-        }
+        List<PersonalRoutineByUserProfileGetResponse> personalRoutineGetResponses = createProfilePersonalRoutineCategories(
+                user, personalRoutines, date).stream().filter(rc -> !rc.routines().isEmpty()).toList();
 
         /*
         그룹 루틴
          */
         List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
-        List<GroupMember> groupMembers = user.getGroupMembers();
-        for (GroupMember groupMember : groupMembers) {
+
+        for (GroupMember groupMember : user.getGroupMembers()) {
             Boolean isAlarmEnabled = groupMember.getIsGroupAlarmEnabled();
             Group userGroup = groupMember.getGroup();
             if (!userGroup.getIsPublic()) {
@@ -195,12 +149,9 @@ public class RoutineService {
                 continue;
             }
 
-            List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
-                    .map(routine -> GroupRoutineInfo.of(routine,
-                            completionRoutineService.getIsCompletionRoutine(user, routine, date), isAlarmEnabled))
-                    .toList();
-
-            groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
+            groupRoutinesGetResponses.add(
+                    GroupRoutinesGetResponse.of(userGroup, createGroupRoutineCategories(user, filterRoutines,
+                            date, isAlarmEnabled)));
         }
 
         return RoutinesByUserProfileGetResponse.of(user, personalRoutineGetResponses, groupRoutinesGetResponses,
@@ -396,6 +347,64 @@ public class RoutineService {
                 .filter(category -> category.getLabel().equals(label))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("카테고리 형식이 잘못됐습니다!"));
+    }
+
+    private List<PersonalRoutineGetResponse> createPersonalRoutineCategories(User user, List<Routine> routines,
+                                                                             LocalDate date) {
+        return Arrays.stream(Category.values())
+                .map(category -> PersonalRoutineGetResponse.of(
+                        category.getLabel(),
+                        routines.stream()
+                                .filter(r -> r.getRoutineCategory().equals(category) && (r.getStartDate().isBefore(date)
+                                        || r.getStartDate().isEqual(date)))
+                                .map(r -> PersonalRoutineInfo.of(
+                                        r,
+                                        r.getRoutineRepeatDays().stream()
+                                                .map(rd -> rd.getRepeatDay().getLabel())
+                                                .toList(),
+                                        r.getStartDate().format(DATE_FORMATTER),
+                                        completionRoutineService.getIsCompletionRoutine(user, r, date)))
+                                .toList()
+                ))
+                .toList();
+    }
+
+    private List<GroupRoutinesCategoryInfo> createGroupRoutineCategories(User user, List<Routine> routines,
+                                                                         LocalDate date, Boolean isAlarmEnabled) {
+        return Arrays.stream(Category.values())
+                .map(category -> GroupRoutinesCategoryInfo.of(
+                        category.getLabel(),
+                        routines.stream()
+                                .filter(r -> r.getRoutineCategory().equals(category) && (r.getStartDate().isBefore(date)
+                                        || r.getStartDate().isEqual(date)))
+                                .map(r -> GroupRoutineInfo.of(
+                                        r,
+                                        completionRoutineService.getIsCompletionRoutine(user, r, date),
+                                        isAlarmEnabled))
+                                .toList()
+                ))
+                .filter(grci -> !grci.routines().isEmpty())
+                .toList();
+    }
+
+    private List<PersonalRoutineByUserProfileGetResponse> createProfilePersonalRoutineCategories(User user,
+                                                                                                 List<Routine> routines,
+                                                                                                 LocalDate date) {
+        return Arrays.stream(Category.values())
+                .map(category -> PersonalRoutineByUserProfileGetResponse.of(
+                        category.getLabel(),
+                        routines.stream()
+                                .filter(r -> r.getRoutineCategory().equals(category) && (r.getStartDate().isBefore(date)
+                                        || r.getStartDate().isEqual(date)))
+                                .map(r -> PersonalRoutineByUserProfileInfo.of(
+                                        r,
+                                        r.getRoutineRepeatDays().stream()
+                                                .map(rd -> rd.getRepeatDay().getLabel())
+                                                .toList(),
+                                        completionRoutineService.getIsCompletionRoutine(user, r, date)))
+                                .toList()
+                ))
+                .toList();
     }
 
 }

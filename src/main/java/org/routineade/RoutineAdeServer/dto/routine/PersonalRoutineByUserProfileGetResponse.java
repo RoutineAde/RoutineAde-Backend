@@ -1,18 +1,13 @@
 package org.routineade.RoutineAdeServer.dto.routine;
 
 import java.util.List;
-import org.routineade.RoutineAdeServer.domain.Routine;
 
 public record PersonalRoutineByUserProfileGetResponse(
-        Long routineId,
-        String routineTitle,
-        List<String> repeatDays,
         String routineCategory,
-        Boolean isCompletion
+        List<PersonalRoutineByUserProfileInfo> routines
 ) {
-    public static PersonalRoutineByUserProfileGetResponse of(Routine routine, List<String> repeatDays,
-                                                             Boolean isCompletion) {
-        return new PersonalRoutineByUserProfileGetResponse(routine.getRoutineId(), routine.getRoutineTitle(),
-                repeatDays, routine.getRoutineCategory().getLabel(), isCompletion);
+    public static PersonalRoutineByUserProfileGetResponse of(String routineCategory,
+                                                             List<PersonalRoutineByUserProfileInfo> routines) {
+        return new PersonalRoutineByUserProfileGetResponse(routineCategory, routines);
     }
 }
