@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
@@ -132,8 +131,10 @@ public class RoutineService {
         그룹 루틴
          */
         List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
-        Set<Group> userGroups = user.getGroupMembers().stream().map(GroupMember::getGroup).collect(Collectors.toSet());
-        for (Group userGroup : userGroups) {
+        List<GroupMember> groupMembers = user.getGroupMembers();
+        for (GroupMember groupMember : groupMembers) {
+            Boolean isAlarmEnabled = groupMember.getIsGroupAlarmEnabled();
+            Group userGroup = groupMember.getGroup();
             List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
             List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
 
@@ -143,7 +144,7 @@ public class RoutineService {
 
             List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
                     .map(routine -> GroupRoutineInfo.of(routine,
-                            completionRoutineService.getIsCompletionRoutine(user, routine, date)))
+                            completionRoutineService.getIsCompletionRoutine(user, routine, date), isAlarmEnabled))
                     .toList();
 
             groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
@@ -180,8 +181,10 @@ public class RoutineService {
         그룹 루틴
          */
         List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
-        Set<Group> userGroups = user.getGroupMembers().stream().map(GroupMember::getGroup).collect(Collectors.toSet());
-        for (Group userGroup : userGroups) {
+        List<GroupMember> groupMembers = user.getGroupMembers();
+        for (GroupMember groupMember : groupMembers) {
+            Boolean isAlarmEnabled = groupMember.getIsGroupAlarmEnabled();
+            Group userGroup = groupMember.getGroup();
             if (!userGroup.getIsPublic()) {
                 continue;
             }
@@ -194,7 +197,7 @@ public class RoutineService {
 
             List<GroupRoutineInfo> groupRoutineInfos = filterRoutines.stream()
                     .map(routine -> GroupRoutineInfo.of(routine,
-                            completionRoutineService.getIsCompletionRoutine(user, routine, date)))
+                            completionRoutineService.getIsCompletionRoutine(user, routine, date), isAlarmEnabled))
                     .toList();
 
             groupRoutinesGetResponses.add(GroupRoutinesGetResponse.of(userGroup, groupRoutineInfos));
