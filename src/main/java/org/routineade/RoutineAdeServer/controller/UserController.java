@@ -68,7 +68,7 @@ public class UserController {
 
     @Operation(summary = "유저 기본 정보 등록", description = "사용자가 첫 가입 시 기본 정보를 등록하는 API")
     @Parameters({
-            @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 (기존 그대로일 경우 null)"),
+            @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 (바꾸지 않았다면 null)"),
             @Parameter(name = "nickname", description = "닉네임", example = "참치마요"),
             @Parameter(name = "intro", description = "소개글", example = "안녕하세요~! (null 가능)")
     })
@@ -184,7 +184,7 @@ public class UserController {
 
     @Operation(summary = "유저 내정보 수정", description = "유저가 자신의 내정보를 수정하는 API")
     @Parameters({
-            @Parameter(name = "profileImage", description = "프로필 이미지", example = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/2023021814122527217_2.jpg"),
+            @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 (바꾸지 않았다면 null)"),
             @Parameter(name = "nickname", description = "닉네임(중복x)", example = "행복하자"),
             @Parameter(name = "intro", description = "소개글(nullable)", example = "잘 부탁 드립니다 ^^")
     })
