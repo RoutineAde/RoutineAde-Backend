@@ -4,7 +4,9 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.routineade.RoutineAdeServer.config.S3Service;
 import org.routineade.RoutineAdeServer.config.jwt.JwtProvider;
 import org.routineade.RoutineAdeServer.config.jwt.UserAuthentication;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
@@ -13,15 +15,14 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
-import org.routineade.RoutineAdeServer.dto.user.UserInfoCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
-import org.routineade.RoutineAdeServer.dto.user.UserProfileUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
 import org.routineade.RoutineAdeServer.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RoutineService routineService;
+    private final S3Service s3Service;
     private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/Basic_Pofile.png";
 
     @Transactional(readOnly = true)
@@ -65,11 +67,12 @@ public class UserService {
         return user.getUserId();
     }
 
-    public void createUserInfo(User user, UserInfoCreateRequest request) {
-        if (userRepository.existsByNickname(request.nickname())) {
+    public void createUserInfo(User user, String nickname, String intro, MultipartFile image) {
+        if (userRepository.existsByNickname(nickname)) {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
-        user.updateInfo(request.profileImage(), request.nickname(), request.intro());
+
+        user.updateInfo(image == null ? user.getProfileImage() : saveAndGetImage(image), nickname, intro);
     }
 
     @Transactional(readOnly = true)
@@ -125,11 +128,17 @@ public class UserService {
         return UserProfileGetResponse.of(user);
     }
 
-    public void updateUserProfile(User user, UserProfileUpdateRequest request) {
-        if (!user.getNickname().equals(request.nickname()) && userRepository.existsByNickname(request.nickname())) {
+    public void updateUserProfile(User user, String nickname, String intro, MultipartFile image) {
+        if (!user.getNickname().equals(nickname) && userRepository.existsByNickname(nickname)) {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
-        user.updateInfo(request.profileImage(), request.nickname(), request.intro());
+        user.updateInfo(image == null ? user.getProfileImage() : saveAndGetImage(image), nickname, intro);
+    }
+
+    private String saveAndGetImage(MultipartFile image) {
+        String uploadName = UUID.randomUUID() + image.getOriginalFilename();
+        s3Service.uploadFileToS3(image, uploadName);
+        return s3Service.getFileURLFromS3(uploadName).toString();
     }
 
 }

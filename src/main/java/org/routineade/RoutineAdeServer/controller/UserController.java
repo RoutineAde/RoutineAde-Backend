@@ -3,6 +3,8 @@ package org.routineade.RoutineAdeServer.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,9 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
-import org.routineade.RoutineAdeServer.dto.user.UserInfoCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
-import org.routineade.RoutineAdeServer.dto.user.UserProfileUpdateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.KakaoService;
@@ -31,7 +31,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "유저 API", description = "유저 관련 API")
 @RestController
@@ -66,15 +68,17 @@ public class UserController {
 
     @Operation(summary = "유저 기본 정보 등록", description = "사용자가 첫 가입 시 기본 정보를 등록하는 API")
     @Parameters({
-            @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 링크"),
+            @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 (기존 그대로일 경우 null)"),
             @Parameter(name = "nickname", description = "닉네임", example = "참치마요"),
             @Parameter(name = "intro", description = "소개글", example = "안녕하세요~! (null 가능)")
     })
-    @PostMapping("/infos")
+    @PostMapping(value = "/infos", consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createUserInfos(Principal principal,
-                                                @Valid @RequestBody UserInfoCreateRequest request) {
+                                                @RequestPart String nickname,
+                                                @RequestPart(required = false) String intro,
+                                                @RequestPart(required = false) MultipartFile image) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        userService.createUserInfo(user, request);
+        userService.createUserInfo(user, nickname, intro, image);
 
         return ResponseEntity
                 .status(CREATED)
@@ -184,11 +188,13 @@ public class UserController {
             @Parameter(name = "nickname", description = "닉네임(중복x)", example = "행복하자"),
             @Parameter(name = "intro", description = "소개글(nullable)", example = "잘 부탁 드립니다 ^^")
     })
-    @PutMapping("/profile")
+    @PutMapping(value = "/profile", consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> getUserProfile(Principal principal,
-                                               @Valid @RequestBody UserProfileUpdateRequest request) {
+                                               @RequestPart String nickname,
+                                               @RequestPart(required = false) String intro,
+                                               @RequestPart(required = false) MultipartFile image) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-        userService.updateUserProfile(user, request);
+        userService.updateUserProfile(user, nickname, intro, image);
 
         return ResponseEntity
                 .status(NO_CONTENT)
