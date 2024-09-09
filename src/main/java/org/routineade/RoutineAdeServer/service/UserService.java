@@ -126,7 +126,7 @@ public class UserService {
     }
 
     public void updateUserProfile(User user, UserProfileUpdateRequest request) {
-        if (userRepository.existsByNickname(request.nickname())) {
+        if (!user.getNickname().equals(request.nickname()) && userRepository.existsByNickname(request.nickname())) {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
         user.updateInfo(request.profileImage(), request.nickname(), request.intro());
