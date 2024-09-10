@@ -282,4 +282,18 @@ public class GroupController {
                 .build();
     }
 
+    @Operation(summary = "그룹 알람 활성화 상태 변경", description = "사용자가 자신이 속한 그룹 알람의 활성화 상태를 변경하는 API\n\n"
+            + "현재 true : false로 변경,\n\n현재 false : true로 변경.")
+    @Parameter(name = "groupId", description = "그룹 ID", example = "1")
+    @PutMapping("/{groupId}/alarm")
+    public ResponseEntity<Void> updateGroupAlarm(Principal principal,
+                                                 @PathVariable Long groupId) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        groupService.updateGroupAlarm(user, groupId);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
+    }
+
 }

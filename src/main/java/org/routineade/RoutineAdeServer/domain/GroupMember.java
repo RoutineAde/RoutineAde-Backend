@@ -48,4 +48,8 @@ public class GroupMember {
         this.user = user;
     }
 
+    public void updateAlarmEnabled() {
+        this.isGroupAlarmEnabled = !this.isGroupAlarmEnabled;
+    }
+
 }

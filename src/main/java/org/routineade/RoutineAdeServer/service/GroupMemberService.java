@@ -63,6 +63,11 @@ public class GroupMemberService {
         return groupMember.getIsGroupAlarmEnabled();
     }
 
+    public void updateGroupAlarm(Group group, User user) {
+        GroupMember groupMember = getGroupMemberOrException(group, user);
+        groupMember.updateAlarmEnabled();
+    }
+
     private GroupMember getGroupMemberOrException(Group group, User user) {
         return groupMemberRepository.findByGroupAndUser(group, user)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 해당 그룹의 멤버가 아닙니다!"));

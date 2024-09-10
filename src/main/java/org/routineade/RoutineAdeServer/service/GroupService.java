@@ -264,6 +264,11 @@ public class GroupService {
         );
     }
 
+    public void updateGroupAlarm(User user, Long groupId) {
+        Group group = getGroupOrThrowException(groupId);
+        groupMemberService.updateGroupAlarm(group, user);
+    }
+
     private Group getGroupOrThrowException(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
