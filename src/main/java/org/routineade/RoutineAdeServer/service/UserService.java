@@ -13,6 +13,7 @@ import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
+import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
@@ -133,6 +134,13 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
         user.updateInfo(image == null ? user.getProfileImage() : saveAndGetImage(image), nickname, intro);
+    }
+
+    public void saveUserFirebaseToken(User user, UserFirebeseTokenSaveRequest request) {
+        if (user.getFirebaseToken() != null) {
+            throw new IllegalArgumentException("이미 Firebase Token이 존재합니다.");
+        }
+        user.updateFirebaseToken(request.token());
     }
 
     private String saveAndGetImage(MultipartFile image) {

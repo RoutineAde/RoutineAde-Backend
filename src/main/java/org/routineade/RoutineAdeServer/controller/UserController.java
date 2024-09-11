@@ -15,6 +15,7 @@ import java.security.Principal;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
@@ -198,6 +199,19 @@ public class UserController {
 
         return ResponseEntity
                 .status(NO_CONTENT)
+                .build();
+    }
+
+    @Operation(summary = "유저 Firebase Token 저장", description = "Push 알림용 유저의 Firebase Token을 DB에 저장하는 API")
+    @Parameter(name = "token", description = "토큰")
+    @PostMapping("/{userId}/token")
+    public ResponseEntity<String> saveUserFirebaseToken(@PathVariable Long userId,
+                                                        @Valid @RequestBody UserFirebeseTokenSaveRequest request) {
+        User user = userService.getUserOrException(userId);
+        userService.saveUserFirebaseToken(user, request);
+
+        return ResponseEntity
+                .status(CREATED)
                 .build();
     }
 

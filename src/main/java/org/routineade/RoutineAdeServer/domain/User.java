@@ -42,6 +42,9 @@ public class User {
     @Column(columnDefinition = "boolean default true", nullable = false)
     private Boolean isPublic;
 
+    @Column
+    private String firebaseToken;
+
     @OneToMany(mappedBy = "user", cascade = ALL)
     private List<Alarm> alarms = new ArrayList<>();
 
@@ -72,6 +75,10 @@ public class User {
         this.profileImage = profileImage;
         this.nickname = nickname;
         this.intro = intro;
+    }
+
+    public void updateFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
     }
 
 }

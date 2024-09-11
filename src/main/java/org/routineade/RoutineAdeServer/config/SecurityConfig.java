@@ -31,7 +31,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "users/health",
             "/users/login/kakao",
-            "/v2/user/me"
+            "/v2/user/me",
+            "/notifications"
     };
 
     @Bean
