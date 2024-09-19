@@ -269,7 +269,8 @@ public class GroupService {
         groupMemberService.updateGroupAlarm(group, user);
     }
 
-    private Group getGroupOrThrowException(Long groupId) {
+    @Transactional(readOnly = true)
+    public Group getGroupOrThrowException(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
     }

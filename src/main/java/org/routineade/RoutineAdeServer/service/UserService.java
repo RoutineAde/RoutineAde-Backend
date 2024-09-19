@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -10,17 +11,24 @@ import org.routineade.RoutineAdeServer.config.S3Service;
 import org.routineade.RoutineAdeServer.config.jwt.JwtProvider;
 import org.routineade.RoutineAdeServer.config.jwt.UserAuthentication;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
+import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
+import org.routineade.RoutineAdeServer.dto.firebase.FCMNotificationRequest;
 import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
 import org.routineade.RoutineAdeServer.repository.UserRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +42,9 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final RoutineService routineService;
     private final S3Service s3Service;
+    private final GroupService groupService;
+    private final GroupMemberService groupMemberService;
+    private final FCMNotificationService fcmNotificationService;
     private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/Basic_Pofile.png";
 
     @Transactional(readOnly = true)
@@ -147,6 +158,51 @@ public class UserService {
         String uploadName = UUID.randomUUID() + image.getOriginalFilename();
         s3Service.uploadFileToS3(image, uploadName);
         return s3Service.getFileURLFromS3(uploadName).toString();
+    }
+
+    @Scheduled(cron = "0 0 10 * * *")
+    private void sendRoutineAlarm() {
+        List<User> users = userRepository.findAll();
+
+        for (User user : users) {
+            RoutinesGetResponse routines = routineService.getRoutines(user,
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+
+            if (routines.personalRoutines().isEmpty() && routines.groupRoutines().isEmpty()) {
+                continue;
+            }
+
+            List<PersonalRoutineInfo> personalRoutineInfos = routines.personalRoutines().stream()
+                    .flatMap(personalRoutine -> personalRoutine.routines().stream())
+                    .toList();
+
+            for (PersonalRoutineInfo pRoutine : personalRoutineInfos) {
+                String routineTitle = pRoutine.routineTitle();
+
+                // 내용 수정
+                FCMNotificationRequest request = FCMNotificationRequest.of(user, "", "");
+
+                fcmNotificationService.sendNotificationByToken(request);
+            }
+
+            for (GroupRoutinesGetResponse groupRoutine : routines.groupRoutines()) {
+                Group group = groupService.getGroupOrThrowException(groupRoutine.groupId());
+                if (groupMemberService.isUserGroupAlarmEnabled(user, group)) {
+                    List<GroupRoutineInfo> gRoutines = groupRoutine.groupRoutines().stream()
+                            .flatMap(gr -> gr.routines().stream())
+                            .toList();
+
+                    for (GroupRoutineInfo gRoutine : gRoutines) {
+                        String routineTitle = gRoutine.routineTitle();
+
+                        // 내용 수정
+                        FCMNotificationRequest request = FCMNotificationRequest.of(user, "", "");
+
+                        fcmNotificationService.sendNotificationByToken(request);
+                    }
+                }
+            }
+        }
     }
 
 }
