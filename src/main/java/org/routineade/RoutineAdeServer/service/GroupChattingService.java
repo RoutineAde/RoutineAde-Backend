@@ -3,11 +3,13 @@ package org.routineade.RoutineAdeServer.service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.config.S3Service;
 import org.routineade.RoutineAdeServer.domain.Group;
 import org.routineade.RoutineAdeServer.domain.GroupChatting;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetByDay;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetInfo;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.repository.GroupChattingRepository;
@@ -42,12 +44,19 @@ public class GroupChattingService {
     }
 
     public GroupChattingGetResponse getGroupChatting(Group group, User user) {
-        List<GroupChatting> groupChattingList = groupChattingRepository.findAllByGroup(group);
+        List<GroupChattingGetByDay> groupChattingByDays = groupChattingRepository.findAllByGroup(group)
+                .stream()
+                .sorted(Comparator.comparing(GroupChatting::getCreatedDate))
+                .collect(Collectors.groupingBy(
+                        gc -> gc.getCreatedDate().toLocalDate(),
+                        Collectors.mapping(gc -> GroupChattingGetInfo.of(gc, user), Collectors.toList())
+                ))
+                .entrySet().stream()
+                .map(entry -> GroupChattingGetByDay.of(entry.getKey().atStartOfDay(), entry.getValue()))
+                .sorted(Comparator.comparing(GroupChattingGetByDay::createdDate))
+                .toList();
 
-        return GroupChattingGetResponse.of(
-                groupChattingList.stream()
-                        .sorted(Comparator.comparing(GroupChatting::getCreatedDate))
-                        .map(gc -> GroupChattingGetInfo.of(gc, user)).toList());
+        return GroupChattingGetResponse.of(groupChattingByDays);
     }
 
     private String saveAndGetImage(MultipartFile image) {
