@@ -342,6 +342,11 @@ public class RoutineService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Long getUserPersonalRoutine(User user) {
+        return routineRepository.countByUserPersonal(user.getUserId());
+    }
+
     private Category getCategoryByLabel(String label) {
         return Arrays.stream(Category.values())
                 .filter(category -> category.getLabel().equals(label))

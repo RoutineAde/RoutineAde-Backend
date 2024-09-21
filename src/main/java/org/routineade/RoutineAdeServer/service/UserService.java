@@ -16,6 +16,7 @@ import org.routineade.RoutineAdeServer.domain.common.Category;
 import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
+import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
@@ -144,6 +145,11 @@ public class UserService {
             throw new IllegalArgumentException("이미 Firebase Token이 존재합니다.");
         }
         user.updateFirebaseToken(request.token());
+    }
+
+    @Transactional(readOnly = true)
+    public UserInfosGetResponse getUserInfos(User user) {
+        return UserInfosGetResponse.of(user, routineService.getUserPersonalRoutine(user));
     }
 
     private String saveAndGetImage(MultipartFile image) {

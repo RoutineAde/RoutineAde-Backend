@@ -18,6 +18,7 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
+import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
@@ -213,6 +214,16 @@ public class UserController {
         return ResponseEntity
                 .status(CREATED)
                 .build();
+    }
+
+    @Operation(summary = "유저 내 정보 조회", description = "유저의 내 정보를 조회하는 API")
+    @GetMapping("/infos")
+    public ResponseEntity<UserInfosGetResponse> getUserInfos(Principal principal) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserInfos(user));
     }
 
 }
