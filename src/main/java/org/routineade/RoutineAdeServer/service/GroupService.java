@@ -88,6 +88,7 @@ public class GroupService {
         }
 
         groupRepository.delete(group);
+        routineService.deleteRoutines(group.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList());
     }
 
     public void createGroupChatting(User user, Long groupId, String content, MultipartFile image) {
