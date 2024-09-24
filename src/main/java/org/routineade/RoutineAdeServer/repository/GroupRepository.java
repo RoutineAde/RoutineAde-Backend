@@ -16,4 +16,6 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     @Query("SELECT g FROM Group g WHERE :groupCategory IS NULL OR g.groupCategory = :groupCategory")
     List<Group> findByGroupCategory(Category groupCategory);
 
+    List<Group> findAllByCreatedUserId(Long userId);
+
 }

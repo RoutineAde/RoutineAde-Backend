@@ -10,6 +10,8 @@ import org.routineade.RoutineAdeServer.config.S3Service;
 import org.routineade.RoutineAdeServer.config.jwt.JwtProvider;
 import org.routineade.RoutineAdeServer.config.jwt.UserAuthentication;
 import org.routineade.RoutineAdeServer.domain.CompletionRoutine;
+import org.routineade.RoutineAdeServer.domain.Group;
+import org.routineade.RoutineAdeServer.domain.GroupChatting;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
@@ -17,10 +19,12 @@ import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
-import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
+import org.routineade.RoutineAdeServer.repository.GroupRepository;
+import org.routineade.RoutineAdeServer.repository.GroupRoutineRepository;
+import org.routineade.RoutineAdeServer.repository.RoutineRepository;
 import org.routineade.RoutineAdeServer.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,10 +39,11 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final RoutineService routineService;
     private final S3Service s3Service;
-    //    private final GroupService groupService;
-//    private final GroupMemberService groupMemberService;
-//    private final FCMNotificationService fcmNotificationService;
-    private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/Basic_Pofile.png";
+    private final GroupRepository groupRepository;
+    private final GroupRoutineRepository groupRoutineRepository;
+    private final RoutineRepository routineRepository;
+    //    private final FCMNotificationService fcmNotificationService;
+    private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/BasicProfile.png";
 
     @Transactional(readOnly = true)
     public User getUserOrException(Long userId) {
@@ -128,11 +133,6 @@ public class UserService {
         return routineService.getRoutinesByUserProfile(user);
     }
 
-    @Transactional(readOnly = true)
-    public UserProfileGetResponse getUserProfile(User user) {
-        return UserProfileGetResponse.of(user);
-    }
-
     public void updateUserProfile(User user, String nickname, String intro, MultipartFile image) {
         if (!user.getNickname().equals(nickname) && userRepository.existsByNickname(nickname)) {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
@@ -150,6 +150,20 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfosGetResponse getUserInfos(User user) {
         return UserInfosGetResponse.of(user, routineService.getUserPersonalRoutine(user));
+    }
+
+    public void deleteUserInfos(User user) {
+        for (GroupChatting groupChatting : user.getGroupChattings()) {
+            groupChatting.setUserNull();
+        }
+
+        for (Group group : groupRepository.findAllByCreatedUserId(user.getUserId())) {
+            groupRoutineRepository.deleteAll(group.getGroupRoutines());
+            groupRepository.delete(group);
+        }
+
+        routineRepository.deleteByUserPersonal(user.getUserId());
+        userRepository.delete(user);
     }
 
     private String saveAndGetImage(MultipartFile image) {

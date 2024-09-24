@@ -38,7 +38,7 @@ public class GroupChatting {
     private Group group;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
@@ -48,6 +48,10 @@ public class GroupChatting {
         this.createdDate = LocalDateTime.now();
         this.group = group;
         this.user = user;
+    }
+
+    public void setUserNull() {
+        this.user = null;
     }
 
 }

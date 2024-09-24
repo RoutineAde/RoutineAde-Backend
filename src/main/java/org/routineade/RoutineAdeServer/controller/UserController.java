@@ -25,6 +25,7 @@ import org.routineade.RoutineAdeServer.service.KakaoService;
 import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -213,6 +214,17 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(userService.getUserInfos(user));
+    }
+
+    @Operation(summary = "유저 회원 탈퇴", description = "유저의 정보를 삭제하는 API")
+    @DeleteMapping("/infos")
+    public ResponseEntity<Void> deleteUserInfos(Principal principal) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+        userService.deleteUserInfos(user);
+
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .build();
     }
 
 }

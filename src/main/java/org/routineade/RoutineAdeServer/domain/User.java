@@ -58,10 +58,10 @@ public class User {
     private List<CompletionRoutine> completionRoutines = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = ALL)
-    private List<GroupChatting> groupChattings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = ALL)
     private List<UserEmotion> userEmotions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<GroupChatting> groupChattings = new ArrayList<>();
 
     @Builder
     public User(String email, String profileImage, String nickname, String intro) {
