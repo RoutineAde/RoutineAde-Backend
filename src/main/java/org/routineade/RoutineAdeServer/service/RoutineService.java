@@ -347,6 +347,10 @@ public class RoutineService {
         return routineRepository.countByUserPersonal(user.getUserId());
     }
 
+    public void deleteRoutinesByUser(User user) {
+        routineRepository.deleteAll(routineRepository.findAllByCreatedUserId(user.getUserId()));
+    }
+
     private Category getCategoryByLabel(String label) {
         return Arrays.stream(Category.values())
                 .filter(category -> category.getLabel().equals(label))

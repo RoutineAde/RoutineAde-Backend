@@ -24,7 +24,6 @@ import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGet
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.routineade.RoutineAdeServer.repository.GroupRoutineRepository;
-import org.routineade.RoutineAdeServer.repository.RoutineRepository;
 import org.routineade.RoutineAdeServer.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,6 @@ public class UserService {
     private final S3Service s3Service;
     private final GroupRepository groupRepository;
     private final GroupRoutineRepository groupRoutineRepository;
-    private final RoutineRepository routineRepository;
     //    private final FCMNotificationService fcmNotificationService;
     private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/BasicProfile.png";
 
@@ -162,7 +160,6 @@ public class UserService {
             groupRepository.delete(group);
         }
 
-        routineRepository.deleteByUserPersonal(user.getUserId());
         userRepository.delete(user);
     }
 

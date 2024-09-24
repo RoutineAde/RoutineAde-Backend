@@ -22,6 +22,7 @@ import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.KakaoService;
+import org.routineade.RoutineAdeServer.service.RoutineService;
 import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
+    private final RoutineService routineService;
     private final UserEmotionService userEmotionService;
     private final KakaoService kakaoService;
 
@@ -221,6 +223,7 @@ public class UserController {
     public ResponseEntity<Void> deleteUserInfos(Principal principal) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
         userService.deleteUserInfos(user);
+        routineService.deleteRoutinesByUser(user);
 
         return ResponseEntity
                 .status(NO_CONTENT)
