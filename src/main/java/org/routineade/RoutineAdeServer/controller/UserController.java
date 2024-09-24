@@ -19,7 +19,6 @@ import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
-import org.routineade.RoutineAdeServer.dto.user.UserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.KakaoService;
@@ -174,17 +173,7 @@ public class UserController {
                 .body(userService.getUserStatistics(targetUser, date));
     }
 
-    @Operation(summary = "유저 내정보 조회", description = "유저가 자신의 내정보를 조회하는 API")
-    @GetMapping("/profile")
-    public ResponseEntity<UserProfileGetResponse> getUserProfile(Principal principal) {
-        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
-
-        return ResponseEntity
-                .status(OK)
-                .body(userService.getUserProfile(user));
-    }
-
-    @Operation(summary = "유저 내정보 수정", description = "유저가 자신의 내정보를 수정하는 API")
+    @Operation(summary = "유저 자신 프로필 정보 수정", description = "유저가 자신의 내정보를 수정하는 API")
     @Parameters({
             @Parameter(name = "profileImage", description = "프로필 이미지", example = "이미지 (바꾸지 않았다면 null)"),
             @Parameter(name = "nickname", description = "닉네임(중복x)", example = "행복하자"),
@@ -216,7 +205,7 @@ public class UserController {
                 .build();
     }
 
-    @Operation(summary = "유저 내 정보 조회", description = "유저의 내 정보를 조회하는 API")
+    @Operation(summary = "유저 내 정보 조회", description = "유저의 내 정보(프로필, 루틴&그룹 수)를 조회하는 API")
     @GetMapping("/infos")
     public ResponseEntity<UserInfosGetResponse> getUserInfos(Principal principal) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
