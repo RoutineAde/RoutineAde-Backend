@@ -1,6 +1,7 @@
 package org.routineade.RoutineAdeServer.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ import org.routineade.RoutineAdeServer.service.KakaoService;
 import org.routineade.RoutineAdeServer.service.RoutineService;
 import org.routineade.RoutineAdeServer.service.UserEmotionService;
 import org.routineade.RoutineAdeServer.service.UserService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,12 +66,17 @@ public class UserController {
                 .body(Map.of("Authentication", token));
     }
 
-    @Operation(summary = "로그인", description = "로그인하여 인증용 토큰을 조회하는 API", hidden = true)
+    @Operation(summary = "카카오 로그인", description = "카카오 로그인 API", hidden = true)
     @GetMapping("/login/kakao")
-    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) {
+    public ResponseEntity<Void> kakaoLogin(@RequestParam("code") String code) throws URISyntaxException {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(
+                new URI("http://15.164.88.94:8080/users/login/kakao?token=" + kakaoService.login(code)));
+
         return ResponseEntity
-                .status(OK)
-                .body(kakaoService.login(code));
+                .status(FOUND)
+                .headers(httpHeaders)
+                .build();
     }
 
     @Operation(summary = "유저 기본 정보 등록", description = "사용자가 첫 가입 시 기본 정보를 등록하는 API")
