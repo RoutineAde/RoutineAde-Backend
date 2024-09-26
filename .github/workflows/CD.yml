@@ -18,11 +18,11 @@ jobs:
         distribution: 'corretto'
         java-version: '17'
         
-    - name: Create application.yml
+    - name: Create application.yml and Frebasefile.json
       run: | 
-          mkdir src/main/resources
-          cd src/main/resources
-          echo "${{ secrets.APPLICATION }}" > ./application.yml
+          mkdir -p src/main/resources/firebase
+          echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
+          printf "%b" "${{ secrets.FIREBASE_FILE }}" > src/main/resources/firebase/routine-ade-firebase-adminsdk-uime1-11ab5526ac.json
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
