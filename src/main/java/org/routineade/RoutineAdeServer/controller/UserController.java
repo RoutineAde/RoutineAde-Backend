@@ -71,7 +71,7 @@ public class UserController {
     public ResponseEntity<Void> kakaoLogin(@RequestParam("code") String code) throws URISyntaxException {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(
-                new URI("http://15.164.88.94:8080/users/login/kakao?token=" + kakaoService.login(code)));
+                new URI("http://15.164.88.94/users/login/kakao?token=" + kakaoService.login(code)));
 
         return ResponseEntity
                 .status(FOUND)
