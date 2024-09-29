@@ -68,15 +68,16 @@ public class UserController {
 
     @Operation(summary = "카카오 로그인", description = "카카오 로그인 API", hidden = true)
     @GetMapping("/login/kakao")
-    public ResponseEntity<Void> kakaoLogin(@RequestParam("code") String code) throws URISyntaxException {
+    public ResponseEntity<String> kakaoLogin(@RequestParam("code") String code) throws URISyntaxException {
         HttpHeaders httpHeaders = new HttpHeaders();
+        String token = kakaoService.login(code);
         httpHeaders.setLocation(
-                new URI("http://15.164.88.94/users/login/kakao?token=" + kakaoService.login(code)));
+                new URI("http://15.164.88.94/users/login/kakao?token=" + token));
 
         return ResponseEntity
                 .status(FOUND)
                 .headers(httpHeaders)
-                .build();
+                .body(token);
     }
 
     @Operation(summary = "유저 기본 정보 등록", description = "사용자가 첫 가입 시 기본 정보를 등록하는 API")
