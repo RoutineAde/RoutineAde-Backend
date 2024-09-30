@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.service;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -15,16 +16,23 @@ import org.routineade.RoutineAdeServer.domain.GroupChatting;
 import org.routineade.RoutineAdeServer.domain.Routine;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.common.Category;
+import org.routineade.RoutineAdeServer.dto.firebase.FCMNotificationRequest;
 import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
+import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
+import org.routineade.RoutineAdeServer.repository.GroupMemberRepository;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.routineade.RoutineAdeServer.repository.GroupRoutineRepository;
 import org.routineade.RoutineAdeServer.repository.UserRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +48,8 @@ public class UserService {
     private final S3Service s3Service;
     private final GroupRepository groupRepository;
     private final GroupRoutineRepository groupRoutineRepository;
+    private final FCMNotificationService fcmNotificationService;
+    private final GroupMemberRepository groupMemberRepository;
     private static final String BASIC_PROFILE_IMAGE = "https://routineade-ducket.s3.ap-northeast-2.amazonaws.com/BasicProfile.png";
 
     @Transactional(readOnly = true)
@@ -168,52 +178,44 @@ public class UserService {
         return s3Service.getFileURLFromS3(uploadName).toString();
     }
 
-//    @Scheduled(cron = "0 0 10 * * *")
-//    private void sendRoutineAlarm() {
-//        List<User> users = userRepository.findAll();
-//
-//        for (User user : users) {
-//            RoutinesGetResponse routines = routineService.getRoutines(user,
-//                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
-//
-//            if (routines.personalRoutines().isEmpty() && routines.groupRoutines().isEmpty()) {
-//                continue;
-//            }
-//
-//            List<PersonalRoutineInfo> personalRoutineInfos = routines.personalRoutines().stream()
-//                    .flatMap(personalRoutine -> personalRoutine.routines().stream())
-//                    .toList();
-//
-//            for (PersonalRoutineInfo pRoutine : personalRoutineInfos) {
-//                String routineTitle = pRoutine.routineTitle();
-//
-//                // 내용 수정
-//                FCMNotificationRequest request = FCMNotificationRequest.of(user, "", "");
-//
-//                fcmNotificationService.sendNotificationByToken(request);
-//            }
-//
-//            for (GroupRoutinesGetResponse groupRoutine : routines.groupRoutines()) {
-//                Group group = groupRepository.findById(groupRoutine.groupId())
-//                        .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
-//                if (groupMemberRepository.findByGroupAndUser(group, user)
-//                        .orElseThrow(() -> new IllegalArgumentException("해당 유저가 해당 그룹의 멤버가 아닙니다!"))
-//                        .getIsGroupAlarmEnabled()) {
-//                    List<GroupRoutineInfo> gRoutines = groupRoutine.groupRoutines().stream()
-//                            .flatMap(gr -> gr.routines().stream())
-//                            .toList();
-//
-//                    for (GroupRoutineInfo gRoutine : gRoutines) {
-//                        String routineTitle = gRoutine.routineTitle();
-//
-//                        // 내용 수정
-//                        FCMNotificationRequest request = FCMNotificationRequest.of(user, "", "");
-//
-//                        fcmNotificationService.sendNotificationByToken(request);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Scheduled(cron = "0 0 10 * * *")
+    public void sendRoutineAlarm() {
+        List<User> users = userRepository.findAll();
+
+        for (User user : users) {
+            RoutinesGetResponse routines = routineService.getRoutines(user,
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+            if (routines.personalRoutines().isEmpty() && routines.groupRoutines().isEmpty()) {
+                continue;
+            }
+            List<PersonalRoutineInfo> personalRoutineInfos = routines.personalRoutines().stream()
+                    .flatMap(personalRoutine -> personalRoutine.routines().stream())
+                    .filter(PersonalRoutineInfo::isAlarmEnabled)
+                    .toList();
+
+            for (PersonalRoutineInfo pRoutine : personalRoutineInfos) {
+                fcmNotificationService.sendNotificationByToken(
+                        FCMNotificationRequest.of(user, "루틴에이드", pRoutine.routineTitle() + " 할 시간이에요!"));
+            }
+
+            for (GroupRoutinesGetResponse groupRoutine : routines.groupRoutines()) {
+                Group group = groupRepository.findById(groupRoutine.groupId())
+                        .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+
+                if (groupMemberRepository.findByGroupAndUser(group, user)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 유저가 해당 그룹의 멤버가 아닙니다!"))
+                        .getIsGroupAlarmEnabled()) {
+                    List<GroupRoutineInfo> gRoutines = groupRoutine.groupRoutines().stream()
+                            .flatMap(gr -> gr.routines().stream())
+                            .toList();
+
+                    for (GroupRoutineInfo gRoutine : gRoutines) {
+                        fcmNotificationService.sendNotificationByToken(FCMNotificationRequest.of(user, "루틴에이드",
+                                gRoutine.routineTitle() + " 할 시간이에요!"));
+                    }
+                }
+            }
+        }
+    }
 
 }
