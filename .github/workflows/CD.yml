@@ -22,7 +22,14 @@ jobs:
       run: | 
           mkdir -p src/main/resources/firebase
           echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
-          printf "%s" "${{ secrets.FIREBASE_FILE }}" > src/main/resources/firebase/routine-ade-firebase-adminsdk-uime1-11ab5526ac.json
+
+    - name: Create Firebase Json
+      id: create-json
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: 'routine-ade-firebase-adminsdk-uime1-11ab5526ac.json'
+        json: ${{ secrets.FIREBASE_FILE }}
+        dir: 'src/main/resources/firebase/'
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
