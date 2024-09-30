@@ -23,11 +23,11 @@ jobs:
           mkdir -p src/main/resources/firebase
           echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
 
-    - name: Create Firebase Json
+    - name: create-json
       id: create-json
-      uses: jsdaniell/create-json@1.1.2
+      uses: jsdaniell/create-json@v1.2.2
       with:
-        name: 'routine-ade-firebase-adminsdk-uime1-11ab5526ac.json'
+        name: "firebasekey.json"
         json: ${{ secrets.FIREBASE_FILE }}
         dir: 'src/main/resources/firebase/'
 
