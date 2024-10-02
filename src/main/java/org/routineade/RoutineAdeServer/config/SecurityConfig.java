@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/users/login/kakao",
             "/v2/user/me",
             "/notifications",
-            "/actuator/health"
+            "/actuator/health",
+            "/push"
     };
 
     @Bean

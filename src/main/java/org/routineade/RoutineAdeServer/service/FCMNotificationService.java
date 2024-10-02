@@ -6,6 +6,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
+import org.routineade.RoutineAdeServer.dto.firebase.AlarmSendRequest;
 import org.routineade.RoutineAdeServer.dto.firebase.FCMNotificationRequest;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,24 @@ public class FCMNotificationService {
             }
         } else {
             throw new IllegalArgumentException("서버에 저장된 해당 유저의 Firebase Token이 존재하지 않습니다.");
+        }
+    }
+
+    public void testSend(AlarmSendRequest request) {
+        Notification notification = Notification.builder()
+                .setTitle("루틴에이드")
+                .setBody(request.content())
+                .build();
+
+        Message message = Message.builder()
+                .setToken(request.deviceToken())
+                .setNotification(notification)
+                .build();
+
+        try {
+            firebaseMessaging.send(message);
+        } catch (FirebaseMessagingException e) {
+            throw new IllegalArgumentException("푸시 알림 보내기를 실패했습니다.");
         }
     }
 
