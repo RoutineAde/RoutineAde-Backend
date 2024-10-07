@@ -148,19 +148,21 @@ public class GroupController {
     @Operation(summary = "그룹 조회", description = "전체 그룹을 조회하는 API")
     @Parameters({
             @Parameter(name = "groupCategory", description = "조회할 그룹 카테고리 (전체, 일상, 건강, 자기관리, 자기개발, 기타, null)", example = "전체"),
+            @Parameter(name = "sortType", description = "조회할 정렬 타입 (신규, 랭킹)", example = "랭킹"),
             @Parameter(name = "groupCode", description = "조회할 그룹 코드 (없을 시 null)", example = "1"),
             @Parameter(name = "keyword", description = "그룹 제목 검색어 (없을 시 null)", example = "갓생러")
     })
     @GetMapping
     public ResponseEntity<GroupsGetResponse> getGroups(Principal principal,
                                                        @RequestParam(required = false) String groupCategory,
+                                                       @RequestParam(required = false) String sortType,
                                                        @RequestParam(required = false) Long groupCode,
                                                        @RequestParam(required = false) String keyword) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
 
         return ResponseEntity
                 .status(OK)
-                .body(groupService.getGroups(user, groupCategory, groupCode, keyword));
+                .body(groupService.getGroups(user, groupCategory, sortType, groupCode, keyword));
     }
 
     @Operation(summary = "그룹 가입", description = "그룹에 가입하는 API")

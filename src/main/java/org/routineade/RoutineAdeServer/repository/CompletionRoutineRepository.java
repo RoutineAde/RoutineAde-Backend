@@ -21,4 +21,6 @@ public interface CompletionRoutineRepository extends JpaRepository<CompletionRou
     @Query("DELETE FROM CompletionRoutine cr WHERE cr.user = :user AND cr.routine IN :routines")
     void deleteByUserAndRoutines(User user, List<Routine> routines);
 
+    int countByRoutineIn(List<Routine> routines);
+
 }

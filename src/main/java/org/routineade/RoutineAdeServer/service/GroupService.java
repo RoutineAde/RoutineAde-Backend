@@ -127,7 +127,8 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public GroupsGetResponse getGroups(User user, String groupCategory, Long groupCode, String keyword) {
+    public GroupsGetResponse getGroups(User user, String groupCategory, String sortType, Long groupCode,
+                                       String keyword) {
         List<Group> groups = new ArrayList<>();
 
         if (groupCode != null) {
@@ -144,12 +145,24 @@ public class GroupService {
             groups.addAll(groupRepository.findByGroupCategory(getCategoryByLabel(groupCategory)));
         }
 
-        return GroupsGetResponse.of(groups
-                .stream()
-                .sorted(Comparator.comparing(Group::getGroupId).reversed())
-                .map(g -> GroupBasicInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
-                        groupMemberService.isMember(g, user)))
-                .toList());
+        if (sortType.equals("신규")) {
+            return GroupsGetResponse.of(groups
+                    .stream()
+                    .sorted(Comparator.comparing(Group::getGroupId).reversed())
+                    .map(g -> GroupBasicInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
+                            groupMemberService.isMember(g, user)))
+                    .toList());
+        } else if (sortType.equals("랭킹")) {
+            return GroupsGetResponse.of(groups
+                    .stream()
+                    .sorted(Comparator.comparingInt(completionRoutineService::getGroupCompletionRoutineCount)
+                            .reversed())
+                    .map(g -> GroupBasicInfo.of(g, userService.getUserOrException(g.getCreatedUserId()).getNickname(),
+                            groupMemberService.isMember(g, user)))
+                    .toList());
+        } else {
+            throw new IllegalArgumentException("그룹 정렬 방식은 신규 또는 랭킹이어야 합니다!");
+        }
     }
 
     public void joinGroup(User user, Long groupId, String password) throws AuthenticationException {

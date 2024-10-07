@@ -126,8 +126,9 @@ public class RoutineService {
         List<Routine> routines = group.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
         List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
 
-        return RoutinesByUserProfileGetResponse.of(user, GroupRoutinesGetResponse.of(group,
-                createGroupRoutineCategories(user, filterRoutines, date, isAlarmEnabled)));
+        return RoutinesByUserProfileGetResponse.of(user, userEmotionService.getUserEmotionByDate(user, date),
+                GroupRoutinesGetResponse.of(group,
+                        createGroupRoutineCategories(user, filterRoutines, date, isAlarmEnabled)));
     }
 
     public void createRoutine(User user, RoutineCreateRequest request) {
