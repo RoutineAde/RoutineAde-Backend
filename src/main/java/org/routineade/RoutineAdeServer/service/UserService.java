@@ -24,7 +24,7 @@ import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
-import org.routineade.RoutineAdeServer.dto.user.UserIsRegisterGetResponse;
+import org.routineade.RoutineAdeServer.dto.user.UserIsFirstGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCompletionStatistics;
@@ -214,8 +214,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserIsRegisterGetResponse getUserIsRegister(User user) {
-        return UserIsRegisterGetResponse.of(!(user.getNickname().equals("닉네임") && user.getIntro().equals("한 줄 소개")));
+    public UserIsFirstGetResponse getUserIsFirst(User user) {
+        return UserIsFirstGetResponse.of(user.getNickname().equals("닉네임") && user.getIntro().equals("한 줄 소개"));
     }
 
 }
