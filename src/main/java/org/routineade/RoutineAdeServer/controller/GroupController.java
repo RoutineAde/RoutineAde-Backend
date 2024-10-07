@@ -155,7 +155,7 @@ public class GroupController {
     @GetMapping
     public ResponseEntity<GroupsGetResponse> getGroups(Principal principal,
                                                        @RequestParam(required = false) String groupCategory,
-                                                       @RequestParam(required = false) String sortType,
+                                                       @RequestParam String sortType,
                                                        @RequestParam(required = false) Long groupCode,
                                                        @RequestParam(required = false) String keyword) {
         User user = userService.getUserOrException(Long.valueOf(principal.getName()));
