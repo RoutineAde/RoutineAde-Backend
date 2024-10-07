@@ -23,6 +23,7 @@ import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.service.GroupService;
 import org.routineade.RoutineAdeServer.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -294,6 +295,23 @@ public class GroupController {
         return ResponseEntity
                 .status(NO_CONTENT)
                 .build();
+    }
+
+    @Operation(summary = "그룹원 프로필 루틴 조회", description = "그룹원의 루틴을 조회하는 API")
+    @Parameters({
+            @Parameter(name = "groupId", description = "그룹 ID", example = "1"),
+            @Parameter(name = "userId", description = "조회할 유저 ID", example = "1")
+    })
+    @GetMapping("{groupId}/users/{userId}/routines")
+    public ResponseEntity<RoutinesByUserProfileGetResponse> getUserProfileRoutines(Principal principal,
+                                                                                   @PathVariable Long groupId,
+                                                                                   @PathVariable Long userId) {
+        userService.getUserOrException(Long.valueOf(principal.getName()));
+        User targetUser = userService.getUserOrException(userId);
+
+        return ResponseEntity
+                .status(OK)
+                .body(groupService.getUserProfileRoutines(groupId, targetUser));
     }
 
 }

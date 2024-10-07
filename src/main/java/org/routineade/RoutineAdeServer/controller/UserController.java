@@ -19,7 +19,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
-import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
@@ -137,19 +136,6 @@ public class UserController {
         return ResponseEntity
                 .status(OK)
                 .body(userService.getUserCalenderStatistics(user, date));
-    }
-
-    @Operation(summary = "타유저 프로필 루틴 조회", description = "타유저의 프로필의 루틴을 조회하는 API")
-    @Parameter(name = "userId", description = "조회할 유저 ID", example = "1")
-    @GetMapping("/{userId}/routines")
-    public ResponseEntity<RoutinesByUserProfileGetResponse> getUserProfileRoutines(Principal principal,
-                                                                                   @PathVariable Long userId) {
-        userService.getUserOrException(Long.valueOf(principal.getName()));
-        User targetUser = userService.getUserOrException(userId);
-
-        return ResponseEntity
-                .status(OK)
-                .body(userService.getUserProfileRoutines(targetUser));
     }
 
     @Operation(summary = "타유저 프로필 캘린더 통계 조회", description = "타유저 프로필의 캘린더 통계를 조회하는 API")

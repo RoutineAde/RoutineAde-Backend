@@ -22,7 +22,6 @@ import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCategoryStatisticsInfo;
-import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.RoutinesGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
@@ -133,11 +132,6 @@ public class UserService {
                 UserRoutineCompletionStatistics.of(routineService.getUserRoutineCompletionStatisticsByMonth(
                         user, yearMonth, completionRoutines))
         );
-    }
-
-    @Transactional(readOnly = true)
-    public RoutinesByUserProfileGetResponse getUserProfileRoutines(User user) {
-        return routineService.getRoutinesByUserProfile(user);
     }
 
     public void updateUserProfile(User user, String nickname, String intro, MultipartFile image) {

@@ -31,6 +31,7 @@ import org.routineade.RoutineAdeServer.dto.group.UserGroupsGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupChatting.GroupChattingGetResponse;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineCreateRequest;
 import org.routineade.RoutineAdeServer.dto.groupRoutine.GroupRoutineUpdateRequest;
+import org.routineade.RoutineAdeServer.dto.routine.RoutinesByUserProfileGetResponse;
 import org.routineade.RoutineAdeServer.repository.BanGroupMemberRepository;
 import org.routineade.RoutineAdeServer.repository.GroupRepository;
 import org.springframework.stereotype.Service;
@@ -274,6 +275,18 @@ public class GroupService {
     public Group getGroupOrThrowException(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 그룹이 존재하지 않습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public RoutinesByUserProfileGetResponse getUserProfileRoutines(Long groupId, User user) {
+        Group group = getGroupOrThrowException(groupId);
+
+        if (!groupMemberService.isMember(group, user)) {
+            throw new IllegalArgumentException("해당 유저가 해당 그룹의 멤버가 아닙니다!");
+        }
+
+        return routineService.getRoutinesByUserProfile(group, user,
+                groupMemberService.isUserGroupAlarmEnabled(user, group));
     }
 
     private List<GroupRoutineCategory> createGroupRoutineCategories(Set<Routine> routines) {

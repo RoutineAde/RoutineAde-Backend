@@ -120,42 +120,14 @@ public class RoutineService {
     }
 
     @Transactional(readOnly = true)
-    public RoutinesByUserProfileGetResponse getRoutinesByUserProfile(User user) {
+    public RoutinesByUserProfileGetResponse getRoutinesByUserProfile(Group group, User user, Boolean isAlarmEnabled) {
         LocalDate date = LocalDate.now();
-        List<Routine> personalRoutines = routineRepeatDayService.getPersonalRoutinesByDay(user,
-                date.getDayOfWeek()); // 요일로 개인 루틴 구함
 
-        /*
-        개인 루틴
-         */
-        List<PersonalRoutineByUserProfileGetResponse> personalRoutineGetResponses = createProfilePersonalRoutineCategories(
-                user, personalRoutines, date).stream().filter(rc -> !rc.routines().isEmpty()).toList();
+        List<Routine> routines = group.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
+        List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
 
-        /*
-        그룹 루틴
-         */
-        List<GroupRoutinesGetResponse> groupRoutinesGetResponses = new ArrayList<>();
-
-        for (GroupMember groupMember : user.getGroupMembers()) {
-            Boolean isAlarmEnabled = groupMember.getIsGroupAlarmEnabled();
-            Group userGroup = groupMember.getGroup();
-            if (!userGroup.getIsPublic()) {
-                continue;
-            }
-            List<Routine> routines = userGroup.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
-            List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
-
-            if (filterRoutines.isEmpty()) {
-                continue;
-            }
-
-            groupRoutinesGetResponses.add(
-                    GroupRoutinesGetResponse.of(userGroup, createGroupRoutineCategories(user, filterRoutines,
-                            date, isAlarmEnabled)));
-        }
-
-        return RoutinesByUserProfileGetResponse.of(user, personalRoutineGetResponses, groupRoutinesGetResponses,
-                userEmotionService.getUserEmotionByDate(user, date));
+        return RoutinesByUserProfileGetResponse.of(user, GroupRoutinesGetResponse.of(group,
+                createGroupRoutineCategories(user, filterRoutines, date, isAlarmEnabled)));
     }
 
     public void createRoutine(User user, RoutineCreateRequest request) {
