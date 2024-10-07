@@ -120,8 +120,9 @@ public class RoutineService {
     }
 
     @Transactional(readOnly = true)
-    public RoutinesByUserProfileGetResponse getRoutinesByUserProfile(Group group, User user, Boolean isAlarmEnabled) {
-        LocalDate date = LocalDate.now();
+    public RoutinesByUserProfileGetResponse getRoutinesByUserProfile(Group group, User user, String routineDate,
+                                                                     Boolean isAlarmEnabled) {
+        LocalDate date = LocalDate.parse(routineDate, DATE_FORMATTER);
 
         List<Routine> routines = group.getGroupRoutines().stream().map(GroupRoutine::getRoutine).toList();
         List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());

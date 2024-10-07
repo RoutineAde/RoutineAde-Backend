@@ -291,14 +291,14 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public RoutinesByUserProfileGetResponse getUserProfileRoutines(Long groupId, User user) {
+    public RoutinesByUserProfileGetResponse getUserProfileRoutines(Long groupId, User user, String routineDate) {
         Group group = getGroupOrThrowException(groupId);
 
         if (!groupMemberService.isMember(group, user)) {
             throw new IllegalArgumentException("해당 유저가 해당 그룹의 멤버가 아닙니다!");
         }
 
-        return routineService.getRoutinesByUserProfile(group, user,
+        return routineService.getRoutinesByUserProfile(group, user, routineDate,
                 groupMemberService.isUserGroupAlarmEnabled(user, group));
     }
 

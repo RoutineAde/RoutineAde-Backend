@@ -20,7 +20,7 @@ public record RoutinesByUserProfileGetResponse(
                 user.getProfileImage(),
                 user.getNickname(),
                 user.getIntro(),
-                userEmotion.getEmotion(),
+                userEmotion == null ? null : userEmotion.getEmotion(),
                 groupRoutines
         );
     }

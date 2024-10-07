@@ -302,18 +302,20 @@ public class GroupController {
     @Operation(summary = "그룹원 프로필 루틴 조회", description = "그룹원의 루틴을 조회하는 API")
     @Parameters({
             @Parameter(name = "groupId", description = "그룹 ID", example = "1"),
-            @Parameter(name = "userId", description = "조회할 유저 ID", example = "1")
+            @Parameter(name = "userId", description = "조회할 유저 ID", example = "1"),
+            @Parameter(name = "routineDate", description = "조회할 날짜", example = "2024.10.07")
     })
     @GetMapping("{groupId}/users/{userId}/routines")
     public ResponseEntity<RoutinesByUserProfileGetResponse> getUserProfileRoutines(Principal principal,
                                                                                    @PathVariable Long groupId,
-                                                                                   @PathVariable Long userId) {
+                                                                                   @PathVariable Long userId,
+                                                                                   @RequestParam String routineDate) {
         userService.getUserOrException(Long.valueOf(principal.getName()));
         User targetUser = userService.getUserOrException(userId);
 
         return ResponseEntity
                 .status(OK)
-                .body(groupService.getUserProfileRoutines(groupId, targetUser));
+                .body(groupService.getUserProfileRoutines(groupId, targetUser, routineDate));
     }
 
 }
