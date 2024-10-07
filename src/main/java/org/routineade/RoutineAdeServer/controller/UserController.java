@@ -21,6 +21,7 @@ import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.dto.firebase.UserFirebeseTokenSaveRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserEmotionCreateRequest;
 import org.routineade.RoutineAdeServer.dto.user.UserInfosGetResponse;
+import org.routineade.RoutineAdeServer.dto.user.UserIsRegisterGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCalenderStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.dto.user.UserRoutineCategoryStatisticsGetResponse;
 import org.routineade.RoutineAdeServer.service.KakaoService;
@@ -224,6 +225,16 @@ public class UserController {
         return ResponseEntity
                 .status(NO_CONTENT)
                 .build();
+    }
+
+    @Operation(summary = "유저 최초로그인 확인", description = "유저가 최초로그인한 유저인지 확인하는 API \n\nfalse:최초, true:최초x")
+    @GetMapping("/isRegister")
+    public ResponseEntity<UserIsRegisterGetResponse> getUserIsRegister(Principal principal) {
+        User user = userService.getUserOrException(Long.valueOf(principal.getName()));
+
+        return ResponseEntity
+                .status(OK)
+                .body(userService.getUserIsRegister(user));
     }
 
 }
