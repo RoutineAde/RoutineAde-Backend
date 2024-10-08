@@ -29,8 +29,6 @@ import org.routineade.RoutineAdeServer.dto.routine.CompletionRoutineRequest;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesCategoryInfo;
 import org.routineade.RoutineAdeServer.dto.routine.GroupRoutinesGetResponse;
-import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineByUserProfileGetResponse;
-import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineByUserProfileInfo;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineGetResponse;
 import org.routineade.RoutineAdeServer.dto.routine.PersonalRoutineInfo;
 import org.routineade.RoutineAdeServer.dto.routine.RoutineCreateRequest;
@@ -111,8 +109,8 @@ public class RoutineService {
             }
 
             groupRoutinesGetResponses.add(
-                    GroupRoutinesGetResponse.of(userGroup, createGroupRoutineCategories(user, filterRoutines,
-                            date, groupMember.getIsGroupAlarmEnabled())));
+                    GroupRoutinesGetResponse.of(userGroup, groupMember.getIsGroupAlarmEnabled(),
+                            createGroupRoutineCategories(user, filterRoutines, date)));
         }
 
         return RoutinesGetResponse.of(personalRoutineGetResponses, groupRoutinesGetResponses,
@@ -128,8 +126,8 @@ public class RoutineService {
         List<Routine> filterRoutines = routineRepeatDayService.filterRoutinesByDay(routines, date.getDayOfWeek());
 
         return RoutinesByUserProfileGetResponse.of(user, userEmotionService.getUserEmotionByDate(user, date),
-                GroupRoutinesGetResponse.of(group,
-                        createGroupRoutineCategories(user, filterRoutines, date, isAlarmEnabled)));
+                GroupRoutinesGetResponse.of(group, isAlarmEnabled,
+                        createGroupRoutineCategories(user, filterRoutines, date)));
     }
 
     public void createRoutine(User user, RoutineCreateRequest request) {
@@ -357,7 +355,7 @@ public class RoutineService {
     }
 
     private List<GroupRoutinesCategoryInfo> createGroupRoutineCategories(User user, List<Routine> routines,
-                                                                         LocalDate date, Boolean isAlarmEnabled) {
+                                                                         LocalDate date) {
         return Arrays.stream(Category.values())
                 .map(category -> GroupRoutinesCategoryInfo.of(
                         category.getLabel(),
@@ -366,31 +364,10 @@ public class RoutineService {
                                         || r.getStartDate().isEqual(date)))
                                 .map(r -> GroupRoutineInfo.of(
                                         r,
-                                        completionRoutineService.getIsCompletionRoutine(user, r, date),
-                                        isAlarmEnabled))
-                                .toList()
-                ))
-                .filter(grci -> !grci.routines().isEmpty())
-                .toList();
-    }
-
-    private List<PersonalRoutineByUserProfileGetResponse> createProfilePersonalRoutineCategories(User user,
-                                                                                                 List<Routine> routines,
-                                                                                                 LocalDate date) {
-        return Arrays.stream(Category.values())
-                .map(category -> PersonalRoutineByUserProfileGetResponse.of(
-                        category.getLabel(),
-                        routines.stream()
-                                .filter(r -> r.getRoutineCategory().equals(category) && (r.getStartDate().isBefore(date)
-                                        || r.getStartDate().isEqual(date)))
-                                .map(r -> PersonalRoutineByUserProfileInfo.of(
-                                        r,
-                                        r.getRoutineRepeatDays().stream()
-                                                .map(rd -> rd.getRepeatDay().getLabel())
-                                                .toList(),
                                         completionRoutineService.getIsCompletionRoutine(user, r, date)))
                                 .toList()
                 ))
+                .filter(grci -> !grci.routines().isEmpty())
                 .toList();
     }
 
