@@ -10,18 +10,18 @@ public record RoutinesByUserProfileGetResponse(
         String nickname,
         String intro,
         Emotion userEmotion,
-        GroupRoutinesGetResponse groupRoutines
+        GroupRoutinesGetResponse userGroupInfo
 ) {
     public static RoutinesByUserProfileGetResponse of(User user,
                                                       UserEmotion userEmotion,
-                                                      GroupRoutinesGetResponse groupRoutines) {
+                                                      GroupRoutinesGetResponse userGroupInfo) {
         return new RoutinesByUserProfileGetResponse(
                 user.getUserId(),
                 user.getProfileImage(),
                 user.getNickname(),
                 user.getIntro(),
                 userEmotion == null ? null : userEmotion.getEmotion(),
-                groupRoutines
+                userGroupInfo
         );
     }
 }

@@ -40,4 +40,4 @@ out/
 *.yml
 
 ### firebase FCM 키 파일 ####
-src/main/resources/firebase/routine-ade-firebase-adminsdk-uime1-11ab5526ac.json
+src/main/resources/firebase/firebasekey.json
