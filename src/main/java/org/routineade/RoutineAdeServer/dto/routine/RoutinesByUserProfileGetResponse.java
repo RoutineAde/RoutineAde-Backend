@@ -1,5 +1,6 @@
 package org.routineade.RoutineAdeServer.dto.routine;
 
+import java.util.List;
 import org.routineade.RoutineAdeServer.domain.User;
 import org.routineade.RoutineAdeServer.domain.UserEmotion;
 import org.routineade.RoutineAdeServer.domain.common.Emotion;
@@ -10,11 +11,11 @@ public record RoutinesByUserProfileGetResponse(
         String nickname,
         String intro,
         Emotion userEmotion,
-        GroupRoutinesGetResponse userGroupInfo
+        List<GroupRoutinesGetResponse> userGroupInfo
 ) {
     public static RoutinesByUserProfileGetResponse of(User user,
                                                       UserEmotion userEmotion,
-                                                      GroupRoutinesGetResponse userGroupInfo) {
+                                                      List<GroupRoutinesGetResponse> userGroupInfo) {
         return new RoutinesByUserProfileGetResponse(
                 user.getUserId(),
                 user.getProfileImage(),
