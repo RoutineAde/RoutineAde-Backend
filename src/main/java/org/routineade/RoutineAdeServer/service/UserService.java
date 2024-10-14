@@ -215,7 +215,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserIsFirstGetResponse getUserIsFirst(User user) {
-        return UserIsFirstGetResponse.of(user.getNickname().equals("닉네임") && user.getIntro().equals("한 줄 소개"));
+        return UserIsFirstGetResponse.of(user.getNickname().equals("닉네임") && user.getIntro().equals("한 줄 소개"),
+                user.getProfileImage());
     }
 
 }
