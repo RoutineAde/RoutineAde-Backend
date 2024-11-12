@@ -1,8 +1,8 @@
-# 🌟 루틴 에이드
+# 🌟 루틴에이드
 
 <div align="center">
  
- ### _**🍹 개인 및 그룹 루틴 관리 서비스, 루틴에이드 🍹**_
+ ### _**🍹 개인부터 그룹까지 확장된 루틴관리 솔루션, 루틴에이드 🍹**_
  </div>
 <br>
 
@@ -38,14 +38,14 @@
 
 ## ⛓️ Architectural
 
-![시스템 구성도](https://github.com/RoutineAde/RoutineAde-Backend/assets/109871579/5bb7de58-96f6-4cf5-a8dc-1b6bf7be7a06)
+![최종 시스템 구성도](https://github.com/user-attachments/assets/90a0d29b-c6c9-4b99-8afa-98710d6fda97)
 
 
 <br>
 
 
 ## 🔧 ERD
-![데이터베이스 설계](https://github.com/RoutineAde/RoutineAde-Backend/assets/109871579/c22ae91d-a09e-400a-9ee1-e9ae97898367)
+![데이터베이스 설계](https://github.com/user-attachments/assets/51866302-7fe5-41b7-9a3f-094efe01358f)
 
 
 <br>
@@ -114,22 +114,6 @@ RoutineAde
 |  STYLE   | 코드 포맷팅                        |
 
 <br>
-
-### Branch Convention
-
-**브랜치명 형식 :** `branchType/#issue`
-
-- **예시 :** `feat/#1`
-
-|   브랜치    | 설명           |
-|:--------:|:-------------|
-|   main   | 실제 프로덕트 브랜치  |
-|   dev    | 신규 버전 개발 브랜치 |
-|   feat   | 기능 구현 브랜치    |
-|   fix    | 기능 수정 브랜치    |
-| refactor | 리팩토링 브랜치     |
-|  bugfix  | 버그 수정 브랜치    |
-
 <!-- ## 패키지 구조 -->
 
 </div>
